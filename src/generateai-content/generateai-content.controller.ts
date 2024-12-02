@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { LinkedinService } from './linkedin.service';
-import { GenerateCommentDto } from './dto/generateComment.dto';
+import { GenerateaiContentService } from './generateai-content.service';
+import { GenerateCommentDto } from 'src/generateai-content/dto/generateComment.dto';
 
-@Controller('linkedin')
-export class LinkedinController {
+@Controller('')
+export class GenerateaiContentController {
     constructor(
-        private readonly linkedinService: LinkedinService
+        private readonly generateaiContentService: GenerateaiContentService
     ) { }
 
     @Post('/generate-comment')
@@ -16,7 +16,7 @@ export class LinkedinController {
             data: {}
         };
         try {
-            let response = await this.linkedinService.generateComment(generateCommentDto);
+            let response = await this.generateaiContentService.generateComment(generateCommentDto);
 
             if (response) {
                 res.status = 200;

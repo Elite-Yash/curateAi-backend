@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { LinkedinModule } from './linkedin/linkedin.module';
 import { ChatgptService } from './chatgpt/chatgpt.service';
 import { ConfigModule } from '@nestjs/config';
+import { GenerateaiContentModule } from './generateai-content/generateai-content.module';
 
 @Module({
-  imports: [LinkedinModule, ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot(), GenerateaiContentModule],
   controllers: [AppController],
   providers: [AppService, ChatgptService],
 })

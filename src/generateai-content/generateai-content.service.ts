@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
-import { GenerateCommentDto } from './dto/generateComment.dto';
+import { Injectable } from '@nestjs/common';
+import { GenerateCommentDto } from 'src/generateai-content/dto/generateComment.dto';
 import { POST_COMMENT_PROMPTS_1, POST_COMMENT_PROMPTS_2 } from 'src/constants/linkedinPrompts';
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { TONE_GOAL_PROMPTS } from '../constants/tonePrompts';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { TONE_GOAL_PROMPTS } from 'src/constants/tonePrompts';
 
 @Injectable()
-export class LinkedinService {
-    constructor(
-        private readonly chatgptService: ChatgptService
-    ) { }
+export class GenerateaiContentService {
 
+    constructor(
+        private readonly ChatgptService: ChatgptService
+    ){}
     async generateComment(generateCommentDto: GenerateCommentDto) {
         const postCommentPromts = [
             POST_COMMENT_PROMPTS_1,
@@ -33,7 +33,7 @@ export class LinkedinService {
         let selectedModel = generateCommentDto.model;
         
 
-        let res = await this.chatgptService.generateContent(promptTemplate, selectedModel);
+        let res = await this.ChatgptService.generateContent(promptTemplate, selectedModel);
         return res;
     }
 }
