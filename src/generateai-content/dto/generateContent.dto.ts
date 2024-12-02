@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class GenerateCommentDto {
+export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
     postText: string;
@@ -28,9 +28,13 @@ export class GenerateCommentDto {
 
     @IsString()
     @IsNotEmpty()
-    type: string;
+    platform: string;
 
     @IsString()
     @IsNotEmpty()
     command: string;
+
+    @IsString()
+    @IsNotEmpty()
+    contentType: string;
 }
