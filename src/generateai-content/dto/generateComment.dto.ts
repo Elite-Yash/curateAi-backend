@@ -25,4 +25,12 @@ export class GenerateCommentDto {
     @IsString()
     @IsNotEmpty()
     model: string;
+
+    @IsString()
+    @IsNotEmpty()
+    type: string;
+
+    @IsString()
+    @IsNotEmpty()
+    command: string;
 }
