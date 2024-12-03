@@ -17,7 +17,7 @@ export class GenerateaiContentService {
         let promptTemplate = "";
 
         try {
-            const { contentType, platform, tone, language, model, currentUserName, command, postText } = generateContentDto;
+            const { contentType, platform, tone, language, model, currentUserName, command, postText, authorName } = generateContentDto;
 
             switch (contentType) {
                 case "comment":
@@ -38,9 +38,9 @@ export class GenerateaiContentService {
                         ["system", randomCommentPrompt],
                         ["user", `Comment:`],
                     ]).format({
-                        currentUserName: currentUserName || "X user",
+                        currentUserName: currentUserName || "Linkedin User",
                         postText: postText || "",
-                        authorName: generateContentDto.authorName || "Author",
+                        authorName: authorName || "Author",
                         tonePrompt: TONE_GOAL_PROMPTS[tone] || "",
                         command: command || "",
                     });
@@ -56,16 +56,10 @@ export class GenerateaiContentService {
                         ["user", `Create a LinkedIn post:`],
                     ]).format({
                         currentUserName: currentUserName || "Linkedin User",
-                        authorName: generateContentDto.authorName || "John Doe",
+                        authorName: authorName || "John Doe",
                         tonePrompt: TONE_GOAL_PROMPTS[tone] || "",
-                        postCreationText:
-                            postText && postText.length > 0
-                                ? postText
-                                : "If no topics are specified, use one of these as your topic: discuss strategies for staying productive and efficient at work; share ideas on how to build and maintain a professional network, both online and offline; discuss how to foster an innovative mindset and encourage creative problem-solving in professional settings.",
-                        command:
-                            command && command.length > 0
-                                ? command
-                                : "NOTE: Consider the [default-prompt] to guide the output but prioritize the [user-command] to help optimize the output.",
+                        postCreationText: postText || postText.length === 0 ? "If no topics are specified, use one of these as your topic: discuss strategies for staying productive and efficient at work; share ideas on how to build and maintain a professional network, both online and offline; discuss how to foster an innovative mindset and encourage creative problem-solving in professional settings." : postText,
+                        command: command || command.length === 0 ? "NOTE: Consider the [default-prompt] to guide the output but prioritize the [user-command] to help optimize the output." : command,
                     });
                     break;
 

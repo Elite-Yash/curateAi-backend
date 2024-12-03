@@ -3,7 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 
 @Injectable()
 export class ChatgptService {
-    async generateContent(prompt: string, selectedModel: string): Promise<string> {
+    async generateContent(prompt: string, selectedModel: string): Promise<any> {
         try {
             let llm = new ChatOpenAI({
                 temperature: 0.8,
@@ -14,7 +14,7 @@ export class ChatgptService {
             });
 
             const llmResponse = await llm.invoke(prompt!);
-            return llmResponse.text;
+            return llmResponse.content;
         } catch (error) {
             console.error('Error generating content:', error);
             throw error;
