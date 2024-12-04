@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, isNotEmpty } from 'class-validator';
 
 export class GenerateContentDto {
     @IsString()
@@ -37,4 +37,16 @@ export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
     contentType: string;
+
+    @IsString()
+    @IsOptional()
+    commentAuthorName: string;
+
+    @IsString()
+    @IsOptional()
+    commentText: string;
+
+    @IsString()
+    @IsNotEmpty()
+    goal: string;
 }
