@@ -9,6 +9,9 @@ import { POST_PROMPT_1, POST_PROMPT_2, POST_PROMPT_3 } from 'src/constants/linke
 import { COMMENT_REPLY_PROMPT_1, COMMENT_REPLY_PROMPT_2, COMMENT_REPLY_PROMPT_3 } from 'src/constants/linkedin/linkedinCommentReplyPrompt';
 import { COMMENT_GOAL_PROMPTS } from 'src/constants/commentGoalPrompts';
 import { POSTINGS_GOAL_PROMPTS } from 'src/constants/postGoalPrompts';
+import { extractLinkedInArticleDetails } from 'src/helpers/commonHelper';
+import { ARTICLE_COMMENT_PROMPT } from 'src/constants/articlePrompts';
+import { ARTICLE_COMMENT_REPLY_PROMPT } from 'src/constants/articleReplyPrompts';
 
 @Injectable()
 export class GenerateaiContentService {
@@ -20,7 +23,7 @@ export class GenerateaiContentService {
         let promptTemplate = "";
 
         try {
-            const { contentType, platform, tone, language, model, currentUserName, command, postText, authorName, commentAuthorName, commentText, goal } = generateContentDto;
+            const { contentType, platform, tone, language, model, currentUserName, command, postText, authorName, commentAuthorName, commentText, goal, articleInfo } = generateContentDto;
 
             switch (contentType) {
                 case "comment":
@@ -46,7 +49,7 @@ export class GenerateaiContentService {
                         authorName: authorName || "Author",
                         tonePrompt: TONE_GOAL_PROMPTS[tone] || "",
                         command: command || "",
-                        goalPrompt: COMMENT_GOAL_PROMPTS[goal]                        
+                        goalPrompt: COMMENT_GOAL_PROMPTS[goal]
                     });
                     break;
 
@@ -60,7 +63,7 @@ export class GenerateaiContentService {
                         ["user", `Create a LinkedIn post:`],
                     ]).format({
                         currentUserName: currentUserName || "Linkedin User",
-                        authorName: authorName ,
+                        authorName: authorName,
                         tonePrompt: TONE_GOAL_PROMPTS[tone] || "",
                         postCreationText: postText || postText.length === 0 ? "If no topics are specified, use one of these as your topic: discuss strategies for staying productive and efficient at work; share ideas on how to build and maintain a professional network, both online and offline; discuss how to foster an innovative mindset and encourage creative problem-solving in professional settings." : postText,
                         command: command || command.length === 0 ? "NOTE: Consider the [default-prompt] to guide the output but prioritize the [user-command] to help optimize the output." : command,
@@ -93,6 +96,70 @@ export class GenerateaiContentService {
 
                     break;
 
+                case 'article-comment': {
+
+                    const { rawText } = articleInfo;
+
+                    // Extract article details
+                    const articleInfoObj = extractLinkedInArticleDetails(rawText);
+                    const { author, description: contentHTML, articleTitle } = articleInfoObj;
+
+                    const articleCommentPrompts = [
+                        ARTICLE_COMMENT_PROMPT,
+                    ];
+
+                    const randomPrompt = articleCommentPrompts[Math.floor(Math.random() * articleCommentPrompts.length)];
+
+                    promptTemplate = await ChatPromptTemplate.fromMessages([
+                        ["system", randomPrompt],
+                        ["user", `Please write the article comment:`],
+                    ]).format({
+                        currentUserName: currentUserName,
+                        articleTitle: articleTitle,
+                        contentHTML: contentHTML,
+                        author: author,
+                        goal: goal,
+                        goalPrompt: goal,
+                        tone: tone,
+                        tonePrompt: tone,
+                        summaryText: command,
+                        authorName: authorName,
+                    });
+
+                }
+                    break;
+
+                case 'article-comment-reply': {
+
+                    const { author, contentHTML, title: articleTitle } = articleInfo;
+
+                    const articleCommentReplyPrompts = [
+                        ARTICLE_COMMENT_REPLY_PROMPT,
+                    ];
+
+                    const randomPrompt = articleCommentReplyPrompts[Math.floor(Math.random() * articleCommentReplyPrompts.length)];
+
+                    promptTemplate = await ChatPromptTemplate.fromMessages([
+                        ["system", randomPrompt],
+                        ["user", `Reply:`],
+                    ]).format({
+                        commentText: commentText,
+                        commentAuthorName: commentAuthorName,
+                        author: author,
+                        postText: postText,
+                        authorName: author,
+                        currentUserName: currentUserName,
+                        articleTitle: articleTitle,
+                        contentHTML: contentHTML,
+                        goal: goal,
+                        goalPrompt: goal,
+                        tone: tone,
+                        tonePrompt: tone,
+                        summaryText: command,
+                        type: contentType,
+                    });
+                }
+                    break;
                 default:
                     throw new Error("Invalid content type");
             }

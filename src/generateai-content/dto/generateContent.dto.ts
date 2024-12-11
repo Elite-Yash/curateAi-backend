@@ -1,5 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, isNotEmpty } from 'class-validator';
-
+import { IsString, IsNotEmpty, IsOptional, isNotEmpty, IsObject } from 'class-validator';
 export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
@@ -21,7 +20,7 @@ export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
     language: string;
-    
+
     @IsString()
     @IsNotEmpty()
     model: string;
@@ -49,4 +48,9 @@ export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
     goal: string;
+
+    @IsObject()
+    @IsOptional()
+    articleInfo: Record<string, any>;
+
 }
