@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, isNotEmpty, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, isNotEmpty, IsObject, IsArray } from 'class-validator';
 export class GenerateContentDto {
     @IsString()
     @IsNotEmpty()
@@ -53,4 +53,8 @@ export class GenerateContentDto {
     @IsOptional()
     articleInfo: Record<string, any>;
 
+    @IsArray()
+    @IsObject({ each: true }) // Ensures each item in the array is an object
+    @IsOptional()
+    lastMessages?: Record<string, any>[];
 }

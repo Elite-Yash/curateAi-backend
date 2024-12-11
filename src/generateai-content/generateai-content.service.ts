@@ -12,6 +12,7 @@ import { POSTINGS_GOAL_PROMPTS } from 'src/constants/postGoalPrompts';
 import { extractLinkedInArticleDetails } from 'src/helpers/commonHelper';
 import { ARTICLE_COMMENT_PROMPT } from 'src/constants/articlePrompts';
 import { ARTICLE_COMMENT_REPLY_PROMPT } from 'src/constants/articleReplyPrompts';
+import { MESSAGE_REPLY_PROMPT } from 'src/constants/messageReplyPrompt';
 
 @Injectable()
 export class GenerateaiContentService {
@@ -23,7 +24,7 @@ export class GenerateaiContentService {
         let promptTemplate = "";
 
         try {
-            const { contentType, platform, tone, language, model, currentUserName, command, postText, authorName, commentAuthorName, commentText, goal, articleInfo } = generateContentDto;
+            const { contentType, platform, tone, language, model, currentUserName, command, postText, authorName, commentAuthorName, commentText, goal, articleInfo, lastMessages } = generateContentDto;
 
             switch (contentType) {
                 case "comment":
@@ -158,6 +159,36 @@ export class GenerateaiContentService {
                         summaryText: command,
                         type: contentType,
                     });
+                }
+                    break;
+                case 'message-reply': {
+
+                    // Prepare the conversation history string
+                    let lastMessagesString = "";
+                    for (let i = lastMessages.length - 1; i >= 0; i--) {
+                        if (lastMessages[i].messageSpeaker === "self") {
+                            lastMessagesString += `(${currentUserName}): `;
+                        } else {
+                            lastMessagesString += `(${authorName}): `;
+                        }
+                        lastMessagesString += lastMessages[i].messageText;
+                        if (i != lastMessages.length - 1) {
+                            lastMessagesString += "\n\n";
+                        }
+                    }
+
+                    promptTemplate = await ChatPromptTemplate.fromMessages([
+                        ["system", MESSAGE_REPLY_PROMPT],
+                        ["user", `Please provide a message reply:`],
+                    ]).format({
+                        currentUserName: currentUserName,
+                        authorName: authorName,
+                        goalPrompt: goal,
+                        tonePrompt: tone,
+                        command: command,
+                        lastMessagesString: lastMessagesString,
+                    });
+
                 }
                     break;
                 default:
