@@ -27,7 +27,9 @@ export class AuthController {
 
         } else {
 
-            return user;
+            const loginResponse = await this.authService.login(user);
+
+            return loginResponse;
         }
 
     }

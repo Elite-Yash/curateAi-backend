@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatgptService } from './chatgpt/chatgpt.service';
-import { ConfigModule } from '@nestjs/config';
 import { GenerateaiContentModule } from './modules/generateai-content/generateai-content.module';
-import { UserController } from './modules/user/user.controller';
-import { UserService } from './modules/user/user.service';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './modules/user/user.respository';
+import { UserController } from './modules/user/user.controller';
+import { JwtAuthMiddleware } from './modules/auth/middleware/jwt-auth-middleware';
 
 @Module({
   imports: [
@@ -30,6 +30,12 @@ import { UserRepository } from './modules/user/user.respository';
     UserRepository
   ],
   controllers: [AppController, UserController],
-  providers: [AppService, ChatgptService],
+  providers: [AppService, ChatgptService, JwtService],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtAuthMiddleware)
+      .forRoutes(UserController);
+  }
+}
