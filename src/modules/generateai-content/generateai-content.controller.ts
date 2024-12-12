@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { GenerateaiContentService } from './generateai-content.service';
-import { GenerateContentDto } from 'src/generateai-content/dto/generateContent.dto';
+import { GenerateContentDto } from 'src/modules/generateai-content/dto/generateContent.dto';
 
 @Controller('')
 export class GenerateaiContentController {

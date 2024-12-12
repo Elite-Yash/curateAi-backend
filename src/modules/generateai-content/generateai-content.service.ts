@@ -1,6 +1,6 @@
 import { ChatgptService } from 'src/chatgpt/chatgpt.service';
 import { Injectable } from '@nestjs/common';
-import { GenerateContentDto } from 'src/generateai-content/dto/generateContent.dto';
+import { GenerateContentDto } from 'src/modules/generateai-content/dto/generateContent.dto';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { TONE_GOAL_PROMPTS } from 'src/constants/tonePrompts';
 import { POST_COMMENT_PROMPTS_X_1, POST_COMMENT_PROMPTS_X_2 } from 'src/constants/twitterPrompts';

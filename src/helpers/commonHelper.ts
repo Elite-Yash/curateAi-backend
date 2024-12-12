@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 export const extractLinkedInArticleDetails = (articleText: string) => {
     const titleEndIndex = articleText.indexOf('\n');
     const articleTitle = articleText.substring(0, titleEndIndex);
@@ -13,5 +15,28 @@ export const extractLinkedInArticleDetails = (articleText: string) => {
         articleTitle,
         author,
         description
+    };
+}
+
+
+
+export const generateVerificationToken = (): string => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
+
+export const sendSuccessResponse = (message: any, data?: any) => {
+    return {
+        success: true,
+        message,
+        data: (data) ? data : {},
+    };
+}
+
+export const sendErrorResponse = (message: any, data?: any) => {
+    return {
+        success: false,
+        message,
+        data: (data) ? data : {},
     };
 }
