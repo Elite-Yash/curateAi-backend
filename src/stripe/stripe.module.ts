@@ -3,13 +3,17 @@ import { StripeService } from './stripe.service';
 import { ConfigModule } from '@nestjs/config';
 import { StripeController } from './stripe.controller';
 import { UserModule } from 'src/modules/user/user.module';
+import { Plan } from './entities/plan.entity';
+import { PlanRepository } from './plan.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigModule,
-    forwardRef(() => UserModule)
+    forwardRef(() => UserModule),
+    TypeOrmModule.forFeature([Plan]), // Import the Plan entity here],
   ],
-  providers: [StripeService],
+  providers: [StripeService, PlanRepository],
   exports: [StripeService],
   controllers: [StripeController],
 })

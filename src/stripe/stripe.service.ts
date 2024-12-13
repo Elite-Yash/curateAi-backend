@@ -5,6 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { sendErrorResponse, sendSuccessResponse } from 'src/helpers/commonHelper';
 import { CreateSubscriptionDto } from '../user-subscription/dto/createSubscription.dto';
 import { CHECKOUT_SESSION_CREATED_SUCCESSFULLY, CUSTOMER_NOT_FOUND, INVALID_PLAN_ID, PLANS_FETCHED_SUCCESSFULLY, SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY } from 'src/constants/stripeMessages';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Plan } from './entities/plan.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class StripeService {
@@ -13,7 +16,10 @@ export class StripeService {
     constructor(
         private readonly configService: ConfigService,
         @Inject(forwardRef(() => UserService)) // Handle circular dependency
-        private readonly userService: UserService
+        private readonly userService: UserService,
+
+        @InjectRepository(Plan)
+        private planRepository: Repository<Plan>,
     ) {
         const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
         if (!stripeSecretKey) {
@@ -35,16 +41,8 @@ export class StripeService {
     async getAllPlans(): Promise<any> {
         try {
 
-            const productId = process.env.STRIPE_PRODUCT_ID; // Retrieve product ID from environment
-            if (!productId) {
-                return sendErrorResponse('STRIPE_PRODUCT_ID not set in the environment variables');
-            }
-            const plans = await this.stripe.prices.list({
-                product: productId,
-                limit: 10,
-            });
-
-            return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, plans);
+            const allPlans = await this.planRepository.find();
+            return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, allPlans);
         } catch (error) {
             return sendErrorResponse('Failed to fetch plans', error);
         }
