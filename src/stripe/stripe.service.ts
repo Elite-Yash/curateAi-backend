@@ -58,20 +58,18 @@ export class StripeService {
             }
 
             // Retrieve the Price ID
-            let price;
-            try {
-                price = await this.stripe.prices.retrieve(planId);
-            } catch (priceError) {
-                return sendErrorResponse(INVALID_PLAN_ID, priceError.message);
-            }
+            const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
 
+            if (!planDetails) {
+                return sendErrorResponse(INVALID_PLAN_ID);
+            }
             // Explicitly type the session data
             const sessionData: Stripe.Checkout.SessionCreateParams = {
                 mode: 'subscription',
                 customer: customerId,
                 line_items: [
                     {
-                        price: price.id,
+                        price: planDetails.stripe_plan_id,
                         quantity: 1,
                     },
                 ],
