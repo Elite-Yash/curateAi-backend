@@ -34,6 +34,24 @@ export class CreateUsersTable1734000760079 implements MigrationInterface {
                         isNullable: false,
                     },
                     {
+                        name: "email_verification_token",
+                        type: "varchar",
+                        isNullable: true,
+                        default: null,
+                    },
+                    {
+                        name: "email_verification_token_expiry",
+                        type: "varchar",
+                        isNullable: true,
+                        default: null,
+                    },
+                    {
+                        name: "stripe_customer_id",
+                        type: "varchar",
+                        isNullable: false,
+                        default: null,
+                    },
+                    {
                         name: "subscription_status",
                         type: "enum",
                         enum: ["expired", "trial", "active"],

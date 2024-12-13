@@ -30,6 +30,12 @@ export class User {
     @Column({ type: 'int', default: 0 })
     ai_token_balance: number;
 
+    @Column({ nullable: true })
+    email_verification_token: string;
+
+    @Column({ nullable: true, type: 'timestamp' })
+    email_verification_token_expiry: Date;
+
     @Column({ type: 'varchar', length: 50, default: 'active' })
     status: string;
 

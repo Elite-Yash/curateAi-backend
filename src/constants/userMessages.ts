@@ -6,3 +6,7 @@ export const USER_PASSWORD_CHANGED_SUCCESSFULLY = 'Password changed successfully
 export const USER_CURRENT_PASSWORD_INCORRECT = 'Current password is incorrect';
 export const LOGIN_FAILED = 'Login failed';
 export const USER_LOGGED_IN_SUCCESSFULLY = 'User logged in successfully';
+export const SOMETHING_WENT_WRONG = 'Something went wrong';
+export const INVALID_TOKEN = 'Invalid token';
+export const PASSWORD_RESET_SUCCESSFUL = 'Password reset successful';
+export const  PASSWORD_RESET_EMAIL_SENT_SUCCESSFULLY = 'Password reset email sent successfully';

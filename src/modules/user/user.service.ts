@@ -48,4 +48,27 @@ export class UserService {
 
         }
     }
+
+    async findById(id: number): Promise<User> {
+        return this.userRepository.findOne({ where: { id } });
+    }
+
+    async updateUser(id: number, updates: Partial<User>): Promise<User> {
+        const user = await this.findById(id);
+        Object.assign(user, updates);
+        return this.userRepository.save(user);
+    }
+
+    async findByResetToken(email_verification_token: string): Promise<User> {
+        return this.userRepository.findOne({ where: { email_verification_token } });
+    }
+
+    async updatePassword(userId: number, hashedPassword: string): Promise<any> {
+        return await this.userRepository.update(userId, { password: hashedPassword });
+    }
+
+    async clearEmailResetToken(id: number): Promise<any> {
+        return await this.userRepository.update(id, { email_verification_token: null });
+    }
+
 }
