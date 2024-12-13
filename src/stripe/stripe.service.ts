@@ -8,6 +8,7 @@ import { CHECKOUT_SESSION_CREATED_SUCCESSFULLY, CUSTOMER_NOT_FOUND, INVALID_PLAN
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plan } from './entities/plan.entity';
 import { Repository } from 'typeorm';
+import { UserSubscription } from 'src/user-subscription/entities/user-subscription.entity';
 
 @Injectable()
 export class StripeService {
@@ -20,6 +21,9 @@ export class StripeService {
 
         @InjectRepository(Plan)
         private planRepository: Repository<Plan>,
+
+        @InjectRepository(UserSubscription)
+        private userSubscriptionRepository: Repository<UserSubscription>,
     ) {
         const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
         if (!stripeSecretKey) {
@@ -87,18 +91,21 @@ export class StripeService {
         }
     }
 
-    async getActiveSubscriptions(customerId: string): Promise<any> {
+    async getActiveSubscriptions(userId: number): Promise<any> {
         try {
-            const subscriptions = await this.stripe.subscriptions.list({
-                customer: customerId,
-                status: 'active',
+            const subscriptions = await this.userSubscriptionRepository.findOne({
+                where: { user_id: userId, status: 'active' },
             });
 
-            return sendSuccessResponse(SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY, subscriptions.data);
+            return sendSuccessResponse(SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY, subscriptions);
         } catch (error) {
             console.error('Error fetching active subscriptions:', error);
             return sendErrorResponse('Error fetching active subscriptions', error.message);
         }
+    }
+
+    async stripeWebhook() {
+        return this.stripe.webhooks.constructEvent;
     }
 
 }

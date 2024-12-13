@@ -79,9 +79,7 @@ export class UserService {
 
 
     async getUserActiveSubscriptions(userId: number) {
-        const userDetails = await this.userRepository.findOne({ where: { id: userId } });
-
-        return await this.stripeService.getActiveSubscriptions(userDetails.stripe_customer_id);
+        return await this.stripeService.getActiveSubscriptions(userId);
 
     }
 }

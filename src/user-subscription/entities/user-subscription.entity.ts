@@ -14,6 +14,9 @@ export class UserSubscription {
     id: number;
 
     @Column()
+    user_id: number;
+    
+    @Column()
     stripe_customer_id: string;
 
     @Column()

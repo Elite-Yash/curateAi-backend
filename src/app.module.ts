@@ -42,9 +42,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthMiddleware)
-      .exclude(
-        { path: '/plans', method: RequestMethod.GET }, // Example route to exclude
-      )
-      .forRoutes(UserController, StripeController, UserSubscriptionController);
+      .forRoutes(UserController, UserSubscriptionController);
   }
 }

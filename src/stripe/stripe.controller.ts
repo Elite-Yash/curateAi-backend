@@ -11,4 +11,9 @@ export class StripeController {
     async getAllPlans() {
         return this.stripeService.getAllPlans();
     }
+
+    @Post('stripe-webhook')
+    async stripeWebhook() {
+        return this.stripeService.stripeWebhook();
+    }
 }
