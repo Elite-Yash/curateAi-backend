@@ -3,7 +3,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { sendErrorResponse, sendSuccessResponse } from 'src/helpers/commonHelper';
-import { CreateSubscriptionDto } from './dto/createSubscription.dto';
+import { CreateSubscriptionDto } from '../user-subscription/dto/createSubscription.dto';
 import { CHECKOUT_SESSION_CREATED_SUCCESSFULLY, CUSTOMER_NOT_FOUND, INVALID_PLAN_ID, PLANS_FETCHED_SUCCESSFULLY, SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY } from 'src/constants/stripeMessages';
 
 @Injectable()

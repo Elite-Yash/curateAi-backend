@@ -12,6 +12,8 @@ import { UserController } from './modules/user/user.controller';
 import { JwtAuthMiddleware } from './modules/auth/middleware/jwt-auth-middleware';
 import { StripeModule } from './stripe/stripe.module';
 import { StripeController } from './stripe/stripe.controller';
+import { UserSubscriptionModule } from './user-subscription/user-subscription.module';
+import { UserSubscriptionController } from './user-subscription/user-subscription.controller';
 
 @Module({
   imports: [
@@ -30,9 +32,10 @@ import { StripeController } from './stripe/stripe.controller';
     UserModule,
     AuthModule,
     UserRepository,
-    StripeModule
+    StripeModule,
+    UserSubscriptionModule
   ],
-  controllers: [AppController, UserController, StripeController],
+  controllers: [AppController, UserController, StripeController, UserSubscriptionController],
   providers: [AppService, ChatgptService, JwtService],
 })
 export class AppModule implements NestModule {
@@ -42,6 +45,6 @@ export class AppModule implements NestModule {
       .exclude(
         { path: '/plans', method: RequestMethod.GET }, // Example route to exclude
       )
-      .forRoutes(UserController, StripeController);
+      .forRoutes(UserController, StripeController, UserSubscriptionController);
   }
 }
