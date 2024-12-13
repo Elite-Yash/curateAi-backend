@@ -6,14 +6,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterUserDto } from './dto/registerUser.dto';
 import * as bcrypt from 'bcrypt';
 import { USER_ALREADY_EXISTS, USER_REGISTRATION_SUCCESS } from 'src/constants/userMessages';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class UserService {
 
     constructor(
         @InjectRepository(User)
-        private userRepository: Repository<User>
-
+        private userRepository: Repository<User>,
+        private stripeService: StripeService
     ) { }
 
     async findByEmail(email: string): Promise<User> {
@@ -28,6 +29,9 @@ export class UserService {
                 return sendErrorResponse(USER_ALREADY_EXISTS, existingUser);
             }
 
+            //Register user a stripe customer
+            const customerDetails = await this.stripeService.createCustomer(email, name);
+            console.log('customerDetails: ', customerDetails);
             // Create a new user
             const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -35,6 +39,7 @@ export class UserService {
                 name,
                 email,
                 password: hashedPassword,
+                stripe_customer_id: customerDetails.id
             });
 
             await this.userRepository.save(newUser);

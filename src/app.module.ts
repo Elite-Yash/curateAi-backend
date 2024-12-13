@@ -10,6 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRepository } from './modules/user/user.respository';
 import { UserController } from './modules/user/user.controller';
 import { JwtAuthMiddleware } from './modules/auth/middleware/jwt-auth-middleware';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { JwtAuthMiddleware } from './modules/auth/middleware/jwt-auth-middleware
     GenerateaiContentModule,
     UserModule,
     AuthModule,
-    UserRepository
+    UserRepository,
+    StripeModule
   ],
   controllers: [AppController, UserController],
   providers: [AppService, ChatgptService, JwtService],

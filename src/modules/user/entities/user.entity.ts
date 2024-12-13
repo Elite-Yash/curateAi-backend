@@ -20,6 +20,9 @@ export class User {
     @Column({ type: 'varchar', length: 255 })
     password: string;
 
+    @Column({ type: 'varchar', length: 255 })
+    stripe_customer_id: string;
+
     @Column({
         type: 'enum',
         enum: ['expired', 'trial', 'active'],

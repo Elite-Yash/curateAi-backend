@@ -1,5 +1,5 @@
 export const USER_NOT_FOUND = 'User was not found';
-export const USER_REGISTRATION_SUCCESS = "User registered successfully. Please check your email to verify your account";
+export const USER_REGISTRATION_SUCCESS = "User registered successfully";
 export const USER_ALREADY_EXISTS = 'User already exists';
 export const USER_DETAILS_FETCHED_SUCCESSFULLY = 'User details fetched successfully';
 export const USER_PASSWORD_CHANGED_SUCCESSFULLY = 'Password changed successfully';
