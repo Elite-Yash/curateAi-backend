@@ -10,7 +10,7 @@ export class JwtAuthMiddleware implements NestMiddleware {
         private userService: UserService) { }
 
     async use(req: Request, res: Response, next: NextFunction) {
-        const authHeader = req.headers['authorization'];
+        const authHeader = req.headers.authorization;
 
         if (!authHeader) {
             throw new UnauthorizedException('Authorization header missing');
@@ -23,7 +23,9 @@ export class JwtAuthMiddleware implements NestMiddleware {
         }
 
         try {
-            const payload = this.jwtService.verify(token);
+            const payload = this.jwtService.verify(token, {
+                secret: process.env.JWT_SECRET
+            });
             req['user'] = payload;
             next();
         } catch (error) {

@@ -7,6 +7,7 @@ import { RegisterUserDto } from './dto/registerUser.dto';
 import * as bcrypt from 'bcrypt';
 import { USER_ALREADY_EXISTS, USER_REGISTRATION_SUCCESS } from 'src/constants/userMessages';
 import { StripeService } from 'src/stripe/stripe.service';
+import { SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY } from 'src/constants/stripeMessages';
 
 @Injectable()
 export class UserService {
@@ -76,4 +77,11 @@ export class UserService {
         return await this.userRepository.update(id, { email_verification_token: null });
     }
 
+
+    async getUserActiveSubscriptions(userId: number) {
+        const userDetails = await this.userRepository.findOne({ where: { id: userId } });
+
+        return await this.stripeService.getActiveSubscriptions(userDetails.stripe_customer_id);
+
+    }
 }

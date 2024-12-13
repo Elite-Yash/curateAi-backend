@@ -1,5 +1,5 @@
 import { JwtService } from '@nestjs/jwt';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatgptService } from './chatgpt/chatgpt.service';
@@ -11,6 +11,7 @@ import { UserRepository } from './modules/user/user.respository';
 import { UserController } from './modules/user/user.controller';
 import { JwtAuthMiddleware } from './modules/auth/middleware/jwt-auth-middleware';
 import { StripeModule } from './stripe/stripe.module';
+import { StripeController } from './stripe/stripe.controller';
 
 @Module({
   imports: [
@@ -31,13 +32,16 @@ import { StripeModule } from './stripe/stripe.module';
     UserRepository,
     StripeModule
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, UserController, StripeController],
   providers: [AppService, ChatgptService, JwtService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthMiddleware)
-      .forRoutes(UserController);
+      .exclude(
+        { path: '/plans', method: RequestMethod.GET }, // Example route to exclude
+      )
+      .forRoutes(UserController, StripeController);
   }
 }

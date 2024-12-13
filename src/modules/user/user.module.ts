@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserRepository } from './user.respository';
@@ -10,7 +10,7 @@ import { StripeModule } from 'src/stripe/stripe.module';
   imports: [TypeOrmModule.forFeature([
     User,
   ]),
-  StripeModule
+  forwardRef(() => StripeModule), // Add forwardRef here
   ],
   providers: [UserService, UserRepository],
   controllers: [UserController],
