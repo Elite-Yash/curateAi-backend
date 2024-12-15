@@ -35,10 +35,10 @@ export class UserSubscription {
     @Column({
         name: 'status',
         type: 'enum',
-        enum: ['active', 'inactive', 'canceled', 'trialing'],
+        enum: ['active', 'inactive','incomplete', 'canceled', 'trialing'],
         default: 'active',
     })
-    status: 'active' | 'inactive' | 'canceled' | 'trialing';
+    status: 'active' | 'inactive' | 'incomplete' | 'canceled' | 'trialing';
 
     @CreateDateColumn()
     created_at: Date;

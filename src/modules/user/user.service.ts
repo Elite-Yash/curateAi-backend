@@ -80,6 +80,14 @@ export class UserService {
 
     async getUserActiveSubscriptions(userId: number) {
         return await this.stripeService.getActiveSubscriptions(userId);
+    }
 
+    async findByStripeCustomerId(stripe_customer_id: string): Promise<User> {
+        return this.userRepository.findOne({ where: { stripe_customer_id } });
+    }
+
+
+    async updateUserSubscriptionStatus(userId: number, subscription_status: any) {
+        return await this.userRepository.update(userId, { subscription_status : subscription_status });
     }
 }

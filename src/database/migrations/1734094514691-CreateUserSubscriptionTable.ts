@@ -40,14 +40,14 @@ export class CreateUserSubscriptionTable1734094514691 implements MigrationInterf
                     {
                         name: 'stripe_plan_duration',
                         type: 'enum',
-                        enum: ['monthly', 'yearly'],
+                        enum: ['month', 'year'],
                         isNullable: false,
                         default: null
                     },
                     {
                         name: 'status',
                         type: 'enum',
-                        enum: ['active', 'inactive', 'canceled', 'trialing'],
+                        enum: ['active', 'inactive','incomplete', 'canceled', 'trialing'],
                         isNullable: false,
                         default: `'active'`,
                     },

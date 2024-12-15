@@ -22,7 +22,7 @@ export class CreatePlansTable1734096062397 implements MigrationInterface {
                     {
                         name: 'plan_duration',
                         type: 'enum',
-                        enum: ['monthly', 'yearly'],
+                        enum: ['month', 'year'],
                         isNullable: false,
                     },
                     {

@@ -104,8 +104,65 @@ export class StripeService {
         }
     }
 
-    async stripeWebhook() {
-        return this.stripe.webhooks.constructEvent;
+    async stripeCustomerSubscriptionCreatedWebhook(webhookData: any): Promise<any> {
+        const subscriptionId = webhookData.data.object.id;
+        const customerId = webhookData.data.object.customer;
+        const stripePlanId = webhookData.data.object.plan.id;
+        const planInterval = webhookData.data.object.plan.interval;
+        const subscriptionStatus = webhookData.data.object.status;
+
+        const userDetails = await this.userService.findByStripeCustomerId(customerId);
+
+        if (!userDetails) {
+            return sendErrorResponse('User not found');
+        }
+
+        const userSubscription = await this.userSubscriptionRepository.findOne({
+            where: { 
+                user_id: userDetails.id, 
+                status : 'active',
+            },
+        });
+
+        if (userSubscription) {
+            return sendErrorResponse('User already has an active subscription');
+        }
+
+        const newSubscription = this.userSubscriptionRepository.create({
+            user_id: userDetails.id,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            stripe_plan_id: stripePlanId,
+            stripe_plan_duration: planInterval,
+            status: subscriptionStatus,
+        });
+
+        await this.userSubscriptionRepository.save(newSubscription);
+
+        return sendSuccessResponse('Subscription created successfully');
     }
+
+    async stripeCustomerSubscriptionUpdatedWebhook(webhookData: any): Promise<any> {
+        const subscriptionId = webhookData.data.object.id;
+
+        const existingIncompleteSubscription = await this.userSubscriptionRepository.findOne({
+            where: { 
+                stripe_subscription_id: subscriptionId,
+                status : "incomplete"
+            },
+        });
+
+        if(existingIncompleteSubscription){
+            existingIncompleteSubscription.status = webhookData.data.object.status;
+            await this.userSubscriptionRepository.save(existingIncompleteSubscription);
+
+            const userId = existingIncompleteSubscription.user_id;
+
+            await this.userService.updateUserSubscriptionStatus(userId, 'active');
+        }
+
+        return sendSuccessResponse('Subscription updated successfully');
+    }
+    
 
 }
