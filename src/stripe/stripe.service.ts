@@ -118,9 +118,9 @@ export class StripeService {
         }
 
         const userSubscription = await this.userSubscriptionRepository.findOne({
-            where: { 
-                user_id: userDetails.id, 
-                status : 'active',
+            where: {
+                user_id: userDetails.id,
+                status: 'active',
             },
         });
 
@@ -145,24 +145,50 @@ export class StripeService {
     async stripeCustomerSubscriptionUpdatedWebhook(webhookData: any): Promise<any> {
         const subscriptionId = webhookData.data.object.id;
 
-        const existingIncompleteSubscription = await this.userSubscriptionRepository.findOne({
-            where: { 
+        const existingSubscriptions = await this.userSubscriptionRepository.find({
+            where: {
                 stripe_subscription_id: subscriptionId,
-                status : "incomplete"
             },
         });
 
-        if(existingIncompleteSubscription){
-            existingIncompleteSubscription.status = webhookData.data.object.status;
-            await this.userSubscriptionRepository.save(existingIncompleteSubscription);
+        for (const existingSubscription of existingSubscriptions) {
 
-            const userId = existingIncompleteSubscription.user_id;
+            if (existingSubscription.status == "incomplete") {
+                existingSubscription.status = webhookData.data.object.status;
+                await this.userSubscriptionRepository.save(existingSubscription);
 
-            await this.userService.updateUserSubscriptionStatus(userId, 'active');
+                const userId = existingSubscription.user_id;
+
+                await this.userService.updateUserSubscriptionStatus(userId, 'active');
+            } else if (existingSubscription.status == "active") {
+                const newPlanInterval = webhookData.data.object.plan.interval;
+                const newPlanId = webhookData.data.object.plan.id;
+                const existingPlanInterval = existingSubscription.stripe_plan_duration;
+
+                if (newPlanInterval != existingPlanInterval) {
+                    existingSubscription.status = 'inactive';
+                    await this.userSubscriptionRepository.save(existingSubscription);
+
+                    const userId = existingSubscription.user_id;
+
+                    const newSubscription = this.userSubscriptionRepository.create({
+                        user_id: userId,
+                        stripe_customer_id: existingSubscription.stripe_customer_id,
+                        stripe_subscription_id: subscriptionId,
+                        stripe_plan_id: newPlanId,
+                        stripe_plan_duration: newPlanInterval,
+                        status: 'active',
+                    });
+
+                    const response = await this.userSubscriptionRepository.save(newSubscription);
+                }
+            }
         }
+
+
 
         return sendSuccessResponse('Subscription updated successfully');
     }
-    
+
 
 }

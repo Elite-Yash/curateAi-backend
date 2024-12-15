@@ -24,13 +24,11 @@ export class CreateUserSubscriptionTable1734094514691 implements MigrationInterf
                         name: 'stripe_customer_id',
                         type: 'varchar',
                         isNullable: false,
-                        isUnique: true,
                     },
                     {
                         name: 'stripe_subscription_id',
                         type: 'varchar',
                         isNullable: false,
-                        isUnique: true,
                     },
                     {
                         name: 'stripe_plan_id',
