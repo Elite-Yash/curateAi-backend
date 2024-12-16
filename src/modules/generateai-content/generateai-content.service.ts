@@ -202,7 +202,13 @@ export class GenerateaiContentService {
             }
 
             const res = await this.ChatgptService.generateContent(promptTemplate, model);
-            return res;
+
+            const gptResponse = res.content;
+
+            const totalTokensUsed = res.usage_metadata.total_tokens;
+
+            
+            return gptResponse;
         } catch (error) {
             console.error("Error generating content:", error.message);
             throw error;

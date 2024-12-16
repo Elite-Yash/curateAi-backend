@@ -14,7 +14,7 @@ export class ChatgptService {
             });
 
             const llmResponse = await llm.invoke(prompt!);
-            return llmResponse.content;
+            return llmResponse;
         } catch (error) {
             console.error('Error generating content:', error);
             throw error;
