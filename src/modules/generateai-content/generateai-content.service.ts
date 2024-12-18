@@ -13,14 +13,16 @@ import { extractLinkedInArticleDetails } from 'src/helpers/commonHelper';
 import { ARTICLE_COMMENT_PROMPT } from 'src/constants/articlePrompts';
 import { ARTICLE_COMMENT_REPLY_PROMPT } from 'src/constants/articleReplyPrompts';
 import { MESSAGE_REPLY_PROMPT } from 'src/constants/messageReplyPrompt';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class GenerateaiContentService {
 
     constructor(
-        private readonly ChatgptService: ChatgptService
+        private readonly ChatgptService: ChatgptService,
+        private userService: UserService
     ) { }
-    async generateContent(generateContentDto: GenerateContentDto) {
+    async generateContent(generateContentDto: GenerateContentDto, currentUserId : number) {
         let promptTemplate = "";
 
         try {
@@ -207,6 +209,7 @@ export class GenerateaiContentService {
 
             const totalTokensUsed = res.usage_metadata.total_tokens;
 
+            await this.userService.updateUserAiTokenBalance(currentUserId, totalTokensUsed);
             
             return gptResponse;
         } catch (error) {

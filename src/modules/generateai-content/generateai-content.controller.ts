@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { GenerateaiContentService } from './generateai-content.service';
 import { GenerateContentDto } from 'src/modules/generateai-content/dto/generateContent.dto';
 
@@ -9,14 +9,16 @@ export class GenerateaiContentController {
     ) { }
 
     @Post('/generate-content')
-    async generateContent(@Body() generateContentDto: GenerateContentDto) {
+    async generateContent(@Req() req: any, @Body() generateContentDto: GenerateContentDto) {
         let res = {
             status: 500,
             message: "internal service error",
             data: {}
         };
+
+        const currentUser = req['user'];
         try {
-            let response = await this.generateaiContentService.generateContent(generateContentDto);
+            let response = await this.generateaiContentService.generateContent(generateContentDto, currentUser.id);
 
             if (response) {
                 res.status = 200;
@@ -28,5 +30,5 @@ export class GenerateaiContentController {
         }
         return res;
     }
-    
+
 }

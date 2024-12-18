@@ -32,7 +32,6 @@ export class UserService {
 
             //Register user a stripe customer
             const customerDetails = await this.stripeService.createCustomer(email, name);
-            console.log('customerDetails: ', customerDetails);
             // Create a new user
             const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -40,7 +39,8 @@ export class UserService {
                 name,
                 email,
                 password: hashedPassword,
-                stripe_customer_id: customerDetails.id
+                stripe_customer_id: customerDetails.id,
+                ai_token_balance: 20000
             });
 
             await this.userRepository.save(newUser);
@@ -89,5 +89,12 @@ export class UserService {
 
     async updateUserSubscriptionStatus(userId: number, subscription_status: any) {
         return await this.userRepository.update(userId, { subscription_status : subscription_status });
+    }
+
+    async updateUserAiTokenBalance(userId: number, ai_token_balance: number) {
+        const user = await this.findById(userId);
+
+        const newAiBalance = user.ai_token_balance - ai_token_balance;
+        return await this.userRepository.update(userId, { ai_token_balance : newAiBalance });
     }
 }

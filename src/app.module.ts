@@ -14,6 +14,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { StripeController } from './stripe/stripe.controller';
 import { UserSubscriptionModule } from './user-subscription/user-subscription.module';
 import { UserSubscriptionController } from './user-subscription/user-subscription.controller';
+import { GenerateaiContentController } from './modules/generateai-content/generateai-content.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthMiddleware)
-      .forRoutes(UserController, UserSubscriptionController);
+      .forRoutes(UserController, UserSubscriptionController, GenerateaiContentController);
   }
 }
