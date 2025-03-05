@@ -17,6 +17,8 @@ import { UserSubscriptionController } from './user-subscription/user-subscriptio
 import { GenerateaiContentController } from './modules/generateai-content/generateai-content.controller';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ProfilesController } from './modules/profiles/profiles.controller';
+import { CommentsModule } from './modules/comments/comments.module';
+import { CommentsController } from './modules/comments/comments.controller';
 
 @Module({
   imports: [
@@ -37,7 +39,8 @@ import { ProfilesController } from './modules/profiles/profiles.controller';
     UserRepository,
     StripeModule,
     UserSubscriptionModule,
-    ProfilesModule
+    ProfilesModule,
+    CommentsModule
   ],
   controllers: [AppController, UserController, StripeController, UserSubscriptionController],
   providers: [AppService, ChatgptService, JwtService],
@@ -46,6 +49,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthMiddleware)
-      .forRoutes(UserController, UserSubscriptionController, GenerateaiContentController, ProfilesController);
+      .forRoutes(UserController, UserSubscriptionController, GenerateaiContentController, ProfilesController, CommentsController);
   }
 }

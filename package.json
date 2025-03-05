@@ -45,7 +45,6 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "handlebars": "^4.7.8",
-    "mysql": "^2.18.1",
     "mysql2": "^3.11.4",
     "nodemailer": "^6.9.16",
     "openai": "^4.73.1",
@@ -53,7 +52,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "stripe": "^17.4.0",
+    "stripe": "^17.7.0",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {

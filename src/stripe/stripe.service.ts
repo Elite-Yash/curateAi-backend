@@ -30,9 +30,7 @@ export class StripeService {
             throw new Error('Stripe secret key not found. Please check your environment variables.');
         }
 
-        this.stripe = new Stripe(stripeSecretKey, {
-            apiVersion: '2024-11-20.acacia',
-        });
+        this.stripe = new Stripe(stripeSecretKey);
     }
 
     async createCustomer(email: string, name: string): Promise<Stripe.Customer> {
