@@ -3,6 +3,7 @@ import {
     IsNotEmpty,
     IsString,
     MinLength,
+    Validate,
 
 } from 'class-validator'; // Import validation decorators from class-validator
 
@@ -41,4 +42,8 @@ export class RegisterUserDto {
     @MinLength(6, { message: 'Password must be at least 6 characters long' }) // Minimum length requirement
     password: string;
 
+    @IsString() // Ensure confirmPassword is a string
+    @IsNotEmpty() // Ensure confirmPassword is not empty
+    @Validate(MatchPasswordConstraint) // Apply the custom password match validator
+    confirmPassword: string;
 }

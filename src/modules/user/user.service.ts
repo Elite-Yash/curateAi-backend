@@ -22,9 +22,13 @@ export class UserService {
         return this.userRepository.findOne({ where: { email } });
     }
     async registerUser(registerDto: RegisterUserDto): Promise<any> {
-        const { name, email, password } = registerDto;
+        const { name, email, password, confirmPassword } = registerDto;
 
         try {
+            if (password !== confirmPassword) {
+                return sendErrorResponse('Password and Confirm Password do not match', {});
+            }
+
             const existingUser = await this.findByEmail(email);
             if (existingUser) {
                 return sendErrorResponse(USER_ALREADY_EXISTS, existingUser);
@@ -88,13 +92,13 @@ export class UserService {
 
 
     async updateUserSubscriptionStatus(userId: number, subscription_status: any) {
-        return await this.userRepository.update(userId, { subscription_status : subscription_status });
+        return await this.userRepository.update(userId, { subscription_status: subscription_status });
     }
 
     async updateUserAiTokenBalance(userId: number, ai_token_balance: number) {
         const user = await this.findById(userId);
 
         const newAiBalance = user.ai_token_balance - ai_token_balance;
-        return await this.userRepository.update(userId, { ai_token_balance : newAiBalance });
+        return await this.userRepository.update(userId, { ai_token_balance: newAiBalance });
     }
 }
