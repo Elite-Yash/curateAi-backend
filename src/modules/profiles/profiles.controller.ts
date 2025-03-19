@@ -10,10 +10,7 @@ export class ProfilesController {
   @Post()
   @UsePipes(new ValidationPipe())
   async create(@Req() req: Request, @Body() createProfileDto: CreateProfileDto) {
-
     const currentUser = req['user'];
-    console.log('currentUser: ', currentUser);
-
     return await this.profilesService.create(currentUser.id, createProfileDto);
   }
 

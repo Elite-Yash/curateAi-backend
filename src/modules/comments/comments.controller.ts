@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Delete, HttpStatus, Req } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
@@ -7,7 +7,10 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) { }
 
   @Post()
-  async create(@Body() createCommentDto: CreateCommentDto) {
+  async create(@Req() req: Request, @Body() createCommentDto: CreateCommentDto) {
+    const currentUser = req['user'];
+    createCommentDto.user_id = currentUser.id;
+
     const comment = await this.commentsService.create(createCommentDto);
     return {
       statusCode: HttpStatus.CREATED,
@@ -17,8 +20,9 @@ export class CommentsController {
   }
 
   @Get()
-  async findAll() {
-    const comments = await this.commentsService.findAll();
+  async findAll(@Req() req: Request) {
+    const currentUser = req['user'];
+    const comments = await this.commentsService.findAll(currentUser.id);
     return {
       statusCode: HttpStatus.OK,
       message: 'Comments retrieved successfully',
