@@ -13,20 +13,17 @@ export class StripeController {
         return this.stripeService.getAllPlans();
     }
 
-    @Post('stripe-webhook')
-    async stripeWebhook(@Req() req: any, @Body() body: any) {
-
-        switch (body.type) {
-            case STRIPE_WEBHOOK_EVENT_TYPES.CUSTOMER_SUBSCRIPTION_CREATED:
-                    await this.stripeService.stripeCustomerSubscriptionCreatedWebhook(body);
-                break;
-            case STRIPE_WEBHOOK_EVENT_TYPES.CUSTOMER_SUBSCRIPTION_UPDATED:
-                    await this.stripeService.stripeCustomerSubscriptionUpdatedWebhook(body);
-                break;
-            default:
-                break;
-        }
-
-
-    }
+    // @Post('stripe-webhook')
+    // async stripeWebhook(@Req() req: any, @Body() body: any) {
+    //     switch (body.type) {
+    //         case STRIPE_WEBHOOK_EVENT_TYPES.CUSTOMER_SUBSCRIPTION_CREATED:
+    //                 await this.stripeService.stripeCustomerSubscriptionCreatedWebhook(body);
+    //             break;
+    //         case STRIPE_WEBHOOK_EVENT_TYPES.CUSTOMER_SUBSCRIPTION_UPDATED:
+    //                 await this.stripeService.stripeCustomerSubscriptionUpdatedWebhook(body);
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 }

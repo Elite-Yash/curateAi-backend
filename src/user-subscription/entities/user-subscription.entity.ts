@@ -26,9 +26,9 @@ export class UserSubscription {
     @Column({
         name: 'stripe_plan_duration',
         type: 'enum',
-        enum: ['monthly', 'yearly'],
+        enum: ['month', 'year'],
     })
-    stripe_plan_duration: 'monthly' | 'yearly';
+    stripe_plan_duration: 'month' | 'year';
 
     @Column({
         name: 'status',

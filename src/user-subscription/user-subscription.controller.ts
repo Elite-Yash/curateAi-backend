@@ -13,4 +13,10 @@ export class UserSubscriptionController {
     async createSubscription(@Req() req, @Body() createSubscriptionDto: CreateSubscriptionDto) {
         return this.stripeService.createSubscription(req['user'].id, createSubscriptionDto);
     }
+
+    @Post('upgrade-subscription')
+    @UsePipes(ValidationPipe)
+    async changeSubscription(@Req() req, @Body() createSubscriptionDto: CreateSubscriptionDto) {
+        return this.stripeService.changeSubscription(req['user'].id, createSubscriptionDto);
+    }
 }
