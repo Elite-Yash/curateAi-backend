@@ -43,12 +43,33 @@ export class StripeService {
     async getAllPlans(): Promise<any> {
         try {
 
-            const allPlans = await this.planRepository.find();
-            return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, allPlans);
+            // const allPlans = await this.planRepository.find();
+            // return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, allPlans);
+
+            const products = await this.stripe.products.list({ expand: ['data.default_price'] });
+
+            // Fetch all prices for each product
+            const plans = await Promise.all(products.data.map(async (product) => {
+                const prices = await this.stripe.prices.list({ product: product.id });
+
+                return prices.data.map(price => ({
+                    id: product.id, // Product ID
+                    name: product.name,
+                    description: product.description,
+                    active: product.active,
+                    price: price.unit_amount ? price.unit_amount / 100 : null,
+                    currency: price.currency,
+                    interval: price.recurring ? price.recurring.interval : 'one-time', // Monthly/Yearly
+                    price_id: price.id // Unique ID for the price plan
+                }));
+            }));
+
+            return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, plans.flat()); // Flatten array
         } catch (error) {
             return sendErrorResponse('Failed to fetch plans', error);
         }
     }
+
     async createSubscription(userId: number, createSubscriptionDto: CreateSubscriptionDto): Promise<any> {
         try {
             const { planId } = createSubscriptionDto;
@@ -59,13 +80,24 @@ export class StripeService {
                 return sendErrorResponse(CUSTOMER_NOT_FOUND);
             }
 
+            // Use getCurrentPlan to check for active subscriptions
+            try {
+                const { subscriptions } = await this.getCurrentPlan(customerId);
+                if (subscriptions?.data.length > 0) {
+                    return sendErrorResponse('User already has an active subscription.');
+                }
+            } catch (error) {
+                console.log('No active subscription found, proceeding with new subscription.');
+            }
+
             // Retrieve the Price ID
             const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
 
             if (!planDetails) {
                 return sendErrorResponse(INVALID_PLAN_ID);
             }
-            // Explicitly type the session data
+
+            // Create the checkout session
             const sessionData: Stripe.Checkout.SessionCreateParams = {
                 mode: 'subscription',
                 customer: customerId,
@@ -81,13 +113,14 @@ export class StripeService {
             };
 
             const session = await this.stripe.checkout.sessions.create(sessionData);
-
             return sendSuccessResponse(CHECKOUT_SESSION_CREATED_SUCCESSFULLY, session.url);
+
         } catch (error) {
             console.error('Error creating checkout session:', error);
             return sendErrorResponse('Error creating subscription', error.message);
         }
     }
+
 
     async getActiveSubscriptions(userId: number): Promise<any> {
         try {
@@ -124,15 +157,7 @@ export class StripeService {
     //         const planInterval = webhookData.data.object.plan.interval;
     //         const subscriptionStatus = webhookData.data.object.status;
 
-    //         console.log("Webhook Data:", webhookData);
-    //         console.log("Subscription ID:", subscriptionId);
-    //         console.log("Customer ID:", customerId);
-    //         console.log("Stripe Plan ID:", stripePlanId);
-    //         console.log("Plan Interval:", planInterval);
-    //         console.log("Subscription Status:", subscriptionStatus);
-
     //         const userDetails = await this.userService.findByStripeCustomerId(customerId);
-    //         console.log("User Details:", userDetails);
 
     //         if (!userDetails) {
     //             throw new Error("User not found");
@@ -259,6 +284,56 @@ export class StripeService {
         }
     }
 
+    async checkSubscription(userId: number): Promise<any> {
+        try {
+            // Fetch user details
+            const userDetails = await this.userService.findById(userId);
+            if (!userDetails || !userDetails.stripe_customer_id) {
+                throw new Error("Customer not found or missing Stripe ID.");
+            }
+
+            const customerId = userDetails.stripe_customer_id;
+
+            // Validate if the customer exists in Stripe
+            try {
+                await this.stripe.customers.retrieve(customerId);
+            } catch (error) {
+                return { success: false, message: "User does not have an active subscription." };
+            }
+
+            // Directly fetch subscriptions from Stripe
+            const subscriptions = await this.stripe.subscriptions.list({ customer: customerId });
+
+            if (!subscriptions.data.length) {
+                return { success: false, message: "User does not have an active subscription." };
+            }
+
+            // Filter for active subscriptions
+            const activeSubscriptions = subscriptions.data.filter(subscription => subscription.status === 'active');
+
+            if (activeSubscriptions.length === 0) {
+                return { success: false, message: "User does not have an active subscription." };
+            }
+
+            // Extract plan data from active subscriptions
+            const activePlans = activeSubscriptions.map(subscription => {
+                return {
+                    id: subscription.items.data[0].plan.id,
+                    name: subscription.items.data[0].plan.nickname || subscription.items.data[0].plan.id,
+                    price: subscription.items.data[0].plan.amount / 100,
+                    currency: subscription.items.data[0].plan.currency,
+                    interval: subscription.items.data[0].plan.interval,
+                };
+            });
+
+            return { success: true, message: "User has an active subscription.", subscriptions: activePlans };
+        } catch (error) {
+            console.error("Error checking user subscription:", error);
+            return { success: false, message: error.message };
+        }
+    }
+
+
     private async getCurrentPlan(customerId: any): Promise<any> {
         try {
             const subscriptions = await this.stripe.subscriptions.list({
@@ -267,7 +342,7 @@ export class StripeService {
 
             // Check if user has active subscriptions
             if (!subscriptions.data.length) {
-                throw new Error("No active subscriptions found for this customer.");
+                return { success: false, message: "No active subscriptions found for this customer." };
             }
 
             const subscription = subscriptions.data[0]; // Get first active subscription
@@ -287,6 +362,10 @@ export class StripeService {
 
             return { subscriptions, currentPlanAmount: planAmount };
         } catch (error) {
+            if (error.type === 'StripeInvalidRequestError' && error.raw.code === 'resource_missing') {
+                console.error(`Customer not found: ${customerId}`, error);
+                throw new Error("Customer not found. Please check the customer ID.");
+            }
             console.error("Error fetching current plan:", error);
             throw new Error(error.message || "Error fetching current plan");
         }

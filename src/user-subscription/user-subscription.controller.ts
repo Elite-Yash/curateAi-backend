@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UsePipes, ValidationPipe, Req } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, ValidationPipe, Req, Get } from '@nestjs/common';
 import { CreateSubscriptionDto } from './dto/createSubscription.dto';
 import { StripeService } from 'src/stripe/stripe.service';
 
@@ -18,5 +18,11 @@ export class UserSubscriptionController {
     @UsePipes(ValidationPipe)
     async changeSubscription(@Req() req, @Body() createSubscriptionDto: CreateSubscriptionDto) {
         return this.stripeService.changeSubscription(req['user'].id, createSubscriptionDto);
+    }
+
+    @Get('check-subscription')
+    @UsePipes(ValidationPipe)
+    async checkSubscription(@Req() req) {
+        return this.stripeService.checkSubscription(req['user'].id,);
     }
 }
