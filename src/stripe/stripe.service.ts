@@ -460,4 +460,50 @@ export class StripeService {
 
     }
 
+    async cancelSubscription(userId: number): Promise<any> {
+        const userDetails = await this.userService.findById(userId);
+        if (!userDetails || !userDetails.stripe_customer_id) {
+            throw new Error("Customer not found or missing Stripe ID.");
+        }
+        const customerId = userDetails.stripe_customer_id;
+
+        // Validate if the customer exists in Stripe
+        try {
+            await this.stripe.customers.retrieve(customerId);
+        } catch (error) {
+            return sendErrorResponse("User does not have an active subscription.", error);
+        }
+
+        // Directly fetch subscriptions from Stripe
+        const subscriptions = await this.stripe.subscriptions.list({ customer: customerId });
+
+        if (!subscriptions.data.length) {
+            return sendErrorResponse("User does not have an active subscription.");
+        }
+
+        // Filter for active subscriptions
+        const activeSubscriptions = subscriptions.data.filter(subscription => subscription.status === 'active');
+
+        if (activeSubscriptions.length === 0) {
+            return sendErrorResponse("User does not have an active subscription.");
+        }
+
+        const subscription = await this.stripe.subscriptions.update(activeSubscriptions[0].id, {
+            cancel_at_period_end: true,
+        });
+
+        const schedules = await this.stripe.subscriptionSchedules.list({ customer: customerId });
+
+        if (schedules.data.length > 0) {
+            // Cancel all pending subscription schedules
+            for (const schedule of schedules.data) {
+                if (schedule.status === 'not_started') {
+                    await this.stripe.subscriptionSchedules.cancel(schedule.id);
+                }
+            }
+        }
+
+        return sendSuccessResponse("Subscription cancelled successfully", subscription);
+    }
+
 }

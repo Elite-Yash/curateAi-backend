@@ -9,9 +9,4 @@ export class UserController {
     async getUserActiveSubscriptions(@Req() req) {
         return this.userService.getUserActiveSubscriptions(req['user'].id);
     }
-
-    @Get('get-customer-portal-link')
-    async getCustomerPortalLink(@Req() req) {
-        return this.userService.getCustomerPortalLink(req['user'].id);
-    }
 }

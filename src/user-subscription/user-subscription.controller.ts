@@ -25,4 +25,14 @@ export class UserSubscriptionController {
     async checkSubscription(@Req() req) {
         return this.stripeService.checkSubscription(req['user'].id,);
     }
+
+    @Get('get-customer-portal-link')
+    async getCustomerPortalLink(@Req() req) {
+        return this.stripeService.getCustomerPortalLink(req['user'].id);
+    }
+
+    @Get('cancel-subscription')
+    async cancelSubscription(@Req() req) {
+        return this.stripeService.cancelSubscription(req['user'].id);
+    }
 }
