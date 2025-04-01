@@ -297,20 +297,20 @@ export class StripeService {
 
             const parseDate = new Date(userDetails?.created_at); // Convert to Date
             parseDate.setDate(parseDate.getDate() + 3); // Add 7 days
-        
+
             let currentTimestamp = Math.floor(Date.now() / 1000); // Current time in seconds
             let periodEnd = Math.floor(parseDate.getTime() / 1000); // End time in seconds
-        
+
             let user = {
-              ...userDetails,
-              plan_name: "Free", // Assign 'DIY' if a one-time plan exists
-              current_period_start: Math.floor(
-                new Date(userDetails?.created_at).getTime() / 1000
-              ),
-              current_period_end: periodEnd,
-              isTrialExpired: currentTimestamp >= periodEnd, // true if 7 days are complete
+                ...userDetails,
+                plan_name: "Free", // Assign 'DIY' if a one-time plan exists
+                current_period_start: Math.floor(
+                    new Date(userDetails?.created_at).getTime() / 1000
+                ),
+                current_period_end: periodEnd,
+                isTrialExpired: currentTimestamp >= periodEnd, // true if 7 days are complete
             };
-        
+
             try {
                 await this.stripe.customers.retrieve(customerId);
             } catch (error) {
@@ -341,10 +341,10 @@ export class StripeService {
                     interval: subscription.items.data[0].plan.interval,
                 };
             });
-           
-        
 
-            return { success: true, message: "User has an active subscription.", subscriptions: activePlans, userDetails: user  };
+
+
+            return { success: true, message: "User has an active subscription.", subscriptions: activePlans, userDetails: user };
         } catch (error) {
             console.error("Error checking user subscription:", error);
             return { success: false, message: error.message };
@@ -468,7 +468,13 @@ export class StripeService {
         }
     }
 
-    async getCustomerPortalLink(customerId: string): Promise<any> {
+    async getCustomerPortalLink(userId: number): Promise<any> {
+        const userDetails = await this.userService.findById(userId);
+        if (!userDetails || !userDetails.stripe_customer_id) {
+            throw new Error("Customer not found or missing Stripe ID.");
+        }
+        const customerId = userDetails.stripe_customer_id;
+
         const session = await this.stripe.billingPortal.sessions.create({
             customer: customerId,
             return_url: `${process.env.FRONTEND_URL}/payment/success`,
