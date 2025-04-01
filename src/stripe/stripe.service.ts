@@ -450,4 +450,14 @@ export class StripeService {
         }
     }
 
+    async getCustomerPortalLink(customerId: string): Promise<any> {
+        const session = await this.stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: `${process.env.FRONTEND_URL}/payment/success`,
+        });
+
+        return sendSuccessResponse("Customer portal link fetched successfully", session.url);
+
+    }
+
 }

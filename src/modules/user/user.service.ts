@@ -101,4 +101,9 @@ export class UserService {
         const newAiBalance = user.ai_token_balance - ai_token_balance;
         return await this.userRepository.update(userId, { ai_token_balance: newAiBalance });
     }
+
+    async getCustomerPortalLink(userId: number) {
+        const user = await this.findById(userId);
+        return await this.stripeService.getCustomerPortalLink(user.stripe_customer_id);
+    }
 }
