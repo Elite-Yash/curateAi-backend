@@ -314,21 +314,21 @@ export class StripeService {
             try {
                 await this.stripe.customers.retrieve(customerId);
             } catch (error) {
-                return { success: false, message: "User does not have an active subscription." };
+                return { success: false, message: "User does not have an active subscription.", userDetails: user };
             }
 
             // Directly fetch subscriptions from Stripe
             const subscriptions = await this.stripe.subscriptions.list({ customer: customerId });
 
             if (!subscriptions.data.length) {
-                return { success: false, message: "User does not have an active subscription." };
+                return { success: false, message: "User does not have an active subscription.", userDetails: user };
             }
 
             // Filter for active subscriptions
             const activeSubscriptions = subscriptions.data.filter(subscription => subscription.status === 'active');
 
             if (activeSubscriptions.length === 0) {
-                return { success: false, message: "User does not have an active subscription." };
+                return { success: false, message: "User does not have an active subscription.", userDetails: user };
             }
 
             // Extract plan data from active subscriptions
