@@ -49,7 +49,7 @@ export const sendForgotPasswordEmail = async (email: string, resetToken: string)
     try {
         const template = await loadTemplate('forgot-password');
         const context = {
-            forgotPasswordUrl: `${appUrl}/dummyurl?token=${resetToken}`,
+            forgotPasswordUrl: `${appUrl}/reset-password/${resetToken}`,
         };
         const htmlContent = template(context);
 
