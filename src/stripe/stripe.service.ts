@@ -9,7 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Plan } from './entities/plan.entity';
 import { Repository } from 'typeorm';
 import { UserSubscription } from 'src/user-subscription/entities/user-subscription.entity';
+import { config } from 'dotenv';
 
+config();
 @Injectable()
 export class StripeService {
     private stripe: Stripe;
@@ -46,22 +48,23 @@ export class StripeService {
             // const allPlans = await this.planRepository.find();
             // return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, allPlans);
 
-            const products = await this.stripe.products.list({ expand: ['data.default_price'] });
+            const productId = process.env.STRIPE_PRODUCT_ID
+            const product = await this.stripe.products.retrieve(productId);
 
-            // Fetch all prices for each product
-            const plans = await Promise.all(products.data.map(async (product) => {
-                const prices = await this.stripe.prices.list({ product: product.id });
+            const allPlansList = await this.stripe.plans.list({
+                product: productId
+            })
 
-                return prices.data.map(price => ({
-                    id: product.id, // Product ID
-                    name: product.name,
-                    description: product.description,
-                    active: product.active,
-                    price: price.unit_amount ? price.unit_amount / 100 : null,
-                    currency: price.currency,
-                    interval: price.recurring ? price.recurring.interval : 'one-time', // Monthly/Yearly
-                    price_id: price.id // Unique ID for the price plan
-                }));
+            // Map prices to a clean plan format
+            const plans = allPlansList.data.map(price => ({
+                id: product.id,
+                name: product.name,
+                description: product.description,
+                active: product.active,
+                price: price.amount ? price.amount / 100 : null,
+                currency: price.currency,
+                interval: price.interval ? price.interval : 'one-time',
+                price_id: price.id
             }));
 
             return sendSuccessResponse(PLANS_FETCHED_SUCCESSFULLY, plans.flat()); // Flatten array
