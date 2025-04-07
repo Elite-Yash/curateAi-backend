@@ -91,8 +91,9 @@ export class StripeService {
             }
 
             // Retrieve the Price ID
-            const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
 
+            // const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
+            const planDetails = await this.stripe.prices.retrieve(planId);
             if (!planDetails) {
                 return sendErrorResponse(INVALID_PLAN_ID);
             }
@@ -103,7 +104,7 @@ export class StripeService {
                 customer: customerId,
                 line_items: [
                     {
-                        price: planDetails.stripe_plan_id,
+                        price: planDetails.id,
                         quantity: 1,
                     },
                 ],
@@ -257,7 +258,8 @@ export class StripeService {
             const customerId = userDetails.stripe_customer_id;
 
             // Retrieve plan details
-            const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
+            // const planDetails = await this.planRepository.findOneBy({ stripe_plan_id: planId });
+            const planDetails = await this.stripe.prices.retrieve(planId);
             if (!planDetails) {
                 throw new Error("Invalid plan ID.");
             }
@@ -268,8 +270,7 @@ export class StripeService {
                 throw new Error("Failed to fetch current subscription details.");
             }
 
-            const newPlanAmount = planDetails.plan_amount;
-
+            const newPlanAmount = planDetails.unit_amount / 100;
             // Determine if it's an upgrade or downgrade
             if (newPlanAmount > currentPlanAmount) {
                 return await this.upgradePlan(userId, customerId, subscriptions, planDetails);
@@ -405,7 +406,7 @@ export class StripeService {
                 items: [
                     {
                         id: subscriptionItem.id,
-                        price: planDetails.stripe_plan_id,
+                        price: planDetails.id,
                     },
                 ],
                 proration_behavior: "create_prorations",
@@ -419,9 +420,9 @@ export class StripeService {
             //     { stripe_plan_id: planDetails.stripe_plan_id, stripe_plan_duration: planDetails.plan_duration }
             // );
 
-            console.log(`User ${userId} upgraded to plan ${planDetails.stripe_plan_id}`);
+            console.log(`User ${userId} upgraded to plan ${planDetails.id}`);
 
-            return { success: true, message: 'Plan upgraded successfully', newPlanId: planDetails.stripe_plan_id };
+            return { success: true, message: 'Plan upgraded successfully', newPlanId: planDetails.id };
         } catch (error) {
             console.error('Error upgrading plan:', error);
             return sendErrorResponse('Error upgrading plan', error.message);
@@ -453,7 +454,7 @@ export class StripeService {
                     {
                         items: [
                             {
-                                price: planDetails.stripe_plan_id,
+                                price: planDetails.id,
                                 quantity: 1,
                             },
                         ],
@@ -461,9 +462,9 @@ export class StripeService {
                 ],
             });
 
-            console.log(`User ${userId} downgraded to plan ${planDetails.stripe_plan_id}, effective at period end.`);
+            console.log(`User ${userId} downgraded to plan ${planDetails.id}, effective at period end.`);
 
-            return { success: true, message: 'Plan downgrade scheduled', newPlanId: planDetails.stripe_plan_id };
+            return { success: true, message: 'Plan downgrade scheduled', newPlanId: planDetails.id };
         } catch (error) {
             console.error('Error downgrading plan:', error);
             return sendErrorResponse('Error downgrading plan', error.message);
