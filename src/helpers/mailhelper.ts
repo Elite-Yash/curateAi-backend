@@ -21,7 +21,7 @@ if (!appUrl) {
 export const sendEmail = async ({ to, subject, text, html }: SendEmailOptions): Promise<void> => {
     try {
         await transporter.sendMail({
-            from: process.env.EMAIL_FROM || 'Curate AI', // Default from address
+            from: process.env.EMAIL_FROM || '"Evarobo Team" <hello@evarobo.ai>', // Default from address
             to,
             subject,
             text,
@@ -49,7 +49,7 @@ export const sendForgotPasswordEmail = async (email: string, resetToken: string)
     try {
         const template = await loadTemplate('forgot-password');
         const context = {
-            forgotPasswordUrl: `${appUrl}/reset-password/${resetToken}`,
+            forgotPasswordUrl: `${appUrl}/reset-password/?token=${resetToken}`,
         };
         const htmlContent = template(context);
 
