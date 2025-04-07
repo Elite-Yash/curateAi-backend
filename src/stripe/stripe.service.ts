@@ -339,6 +339,8 @@ export class StripeService {
                     price: subscription.items.data[0].plan.amount / 100,
                     currency: subscription.items.data[0].plan.currency,
                     interval: subscription.items.data[0].plan.interval,
+                    start_date: new Date(subscription.current_period_start * 1000).toISOString(), // Convert to readable format
+                    end_date: new Date(subscription.current_period_end * 1000).toISOString(), // Convert to readable format
                 };
             });
 
