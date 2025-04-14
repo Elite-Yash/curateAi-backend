@@ -44,6 +44,7 @@
     "cross-var": "^1.1.0",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
+    "googleapis": "^148.0.0",
     "handlebars": "^4.7.8",
     "mysql2": "^3.11.4",
     "nodemailer": "^6.9.16",
