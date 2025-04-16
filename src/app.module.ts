@@ -1,5 +1,10 @@
 import { JwtService } from '@nestjs/jwt';
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatgptService } from './chatgpt/chatgpt.service';
@@ -19,13 +24,16 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { ProfilesController } from './modules/profiles/profiles.controller';
 import { CommentsModule } from './modules/comments/comments.module';
 import { CommentsController } from './modules/comments/comments.controller';
+import { CrmController } from './modules/crm/crm.controller';
+import { CrmService } from './modules/crm/crm.service';
+import { CrmModule } from './modules/crm/crm.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any || 'mysql',
+      type: (process.env.DB_TYPE as any) || 'mysql',
       host: process.env.DB_HOST,
-      port: process.env.DB_PORT as any || 3306,
+      port: (process.env.DB_PORT as any) || 3306,
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
@@ -40,15 +48,29 @@ import { CommentsController } from './modules/comments/comments.controller';
     StripeModule,
     UserSubscriptionModule,
     ProfilesModule,
-    CommentsModule
+    CommentsModule,
+    CrmModule,
   ],
-  controllers: [AppController, UserController, StripeController, UserSubscriptionController],
+  controllers: [
+    AppController,
+    UserController,
+    StripeController,
+    UserSubscriptionController,
+    CrmController,
+  ],
   providers: [AppService, ChatgptService, JwtService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthMiddleware)
-      .forRoutes(UserController, UserSubscriptionController, GenerateaiContentController, ProfilesController, CommentsController);
+      .forRoutes(
+        UserController,
+        UserSubscriptionController,
+        GenerateaiContentController,
+        ProfilesController,
+        CommentsController,
+        CrmController,
+      );
   }
 }
