@@ -66,7 +66,7 @@ export class GenerateaiContentService {
                         ["user", `Create a LinkedIn post:`],
                     ]).format({
                         currentUserName: currentUserName || "Linkedin User",
-                        authorName: authorName,
+                        authorName: authorName || currentUserName,
                         tonePrompt: TONE_GOAL_PROMPTS[tone] || "",
                         postCreationText: postText || postText.length === 0 ? "If no topics are specified, use one of these as your topic: discuss strategies for staying productive and efficient at work; share ideas on how to build and maintain a professional network, both online and offline; discuss how to foster an innovative mindset and encourage creative problem-solving in professional settings." : postText,
                         command: command || command.length === 0 ? "NOTE: Consider the [default-prompt] to guide the output but prioritize the [user-command] to help optimize the output." : command,
