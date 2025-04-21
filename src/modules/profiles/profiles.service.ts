@@ -25,14 +25,14 @@ export class ProfilesService {
       data: {},
     };
 
-    const existingProfile = await this.profileRepository.findOne({
-      where: { email: data.email, user_id: user_id },
-    });
-    if (existingProfile) {
-      res.status = 400;
-      res.message = 'Profile with this email already exists';
-      return res;
-    }
+    // const existingProfile = await this.profileRepository.findOne({
+    //   where: { email: data.email, user_id: user_id },
+    // });
+    // if (existingProfile) {
+    //   res.status = 400;
+    //   res.message = 'Profile with this email already exists';
+    //   return res;
+    // }
 
     const updatedData = {
       ...data,
