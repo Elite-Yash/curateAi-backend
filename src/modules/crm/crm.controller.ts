@@ -24,24 +24,4 @@ export class CrmController {
   addToCRM(@Body() addTOCRMDto: addToCRM) {
     return this.crmService.addToZenDeskCRMService(addTOCRMDto);
   }
-
-  // @Get()
-  // findAll() {
-  //   return this.crmService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.crmService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateCrmDto: UpdateCrmDto) {
-  //   return this.crmService.update(+id, updateCrmDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.crmService.remove(+id);
-  // }
 }
