@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && cp .env dist/ && cp -R src/email-templates dist/email-templates",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=8192' nest build && cp .env dist/ && cp -R src/email-templates dist/email-templates  && cp -R src/credentials.json dist/credentials.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/main.ts",
