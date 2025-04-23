@@ -14,7 +14,7 @@ export class CrmService {
     private readonly crmRepository: Repository<Crm>,
   ) {}
   async create(createCrmDto: CreateCrmDto) {
-    const crm = this.crmRepository.create(createCrmDto);
+    const crm = await this.crmRepository.create(createCrmDto);
 
     await this.crmRepository.save(crm);
 
