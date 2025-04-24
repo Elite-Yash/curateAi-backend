@@ -12,15 +12,14 @@ export class CrmService {
   constructor(
     @InjectRepository(Crm)
     private readonly crmRepository: Repository<Crm>,
-  ) {}
+  ) { }
   async create(createCrmDto: CreateCrmDto) {
-    const crm = this.crmRepository.create(createCrmDto);
-
-    await this.crmRepository.save(crm);
+    const crm = await this.crmRepository.create(createCrmDto);
 
     if (createCrmDto && createCrmDto?.crm_name === 'zendesk') {
       const status: any = await this.fetchZendeskConnectionStatus(createCrmDto);
       if (status == 200) {
+        await this.crmRepository.save(crm);
         return { message: 'Connected Successfully' };
       }
     }
