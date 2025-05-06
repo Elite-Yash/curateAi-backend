@@ -34,9 +34,11 @@ export class AuthService {
     async login(user: User) {
         const payload = { id: user.id, email: user.email, subscription_status: user.subscription_status };
         const token = this.jwtService.sign(payload);
+        const userData = await this.getUserByEmail(user.email)
+        const { password, ...safeUserData } = userData; // assuming userData has a password
+        const respData = { ...safeUserData, auth_token: token };
 
-        return sendSuccessResponse("Login successful", { auth_token: token });
-
+        return sendSuccessResponse("Login successful", respData);
     }
 
     async getUserByEmail(email: string) {
@@ -92,5 +94,20 @@ export class AuthService {
 
         }
     }
+
+    async emailValidation(token: string): Promise<any> {
+        const user = await this.UserService.findByResetToken(token);
+        if (!user) {
+            return sendErrorResponse('Invalid or expired verification token');
+        }
+
+        await this.UserService.updateUser(user.id, {
+            is_email_verified: true,
+            email_verification_token: null,
+        });
+
+        return sendSuccessResponse('Email successfully verified');
+    }
+
 }
 
