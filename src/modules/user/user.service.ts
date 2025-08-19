@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { sendErrorResponse, sendSuccessResponse } from 'src/helpers/commonHelper';
+import { generateVerificationToken, sendErrorResponse, sendSuccessResponse } from 'src/helpers/commonHelper';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,8 @@ import * as bcrypt from 'bcrypt';
 import { USER_ALREADY_EXISTS, USER_REGISTRATION_SUCCESS } from 'src/constants/userMessages';
 import { StripeService } from 'src/stripe/stripe.service';
 import { SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY } from 'src/constants/stripeMessages';
+import { sendVerificationEmail } from 'src/helpers/mailhelper';
+import { emitWarning } from 'process';
 
 @Injectable()
 export class UserService {
@@ -33,21 +35,7 @@ export class UserService {
             if (existingUser) {
                 return sendErrorResponse(USER_ALREADY_EXISTS, existingUser);
             }
-
-            //Register user a stripe customer
-            const customerDetails = await this.stripeService.createCustomer(email, name);
-            // Create a new user
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const newUser = this.userRepository.create({
-                name,
-                email,
-                password: hashedPassword,
-                stripe_customer_id: customerDetails.id,
-                ai_token_balance: 20000
-            });
-
-            await this.userRepository.save(newUser);
+            await this.verifyEmail(registerDto);
 
             return sendSuccessResponse(USER_REGISTRATION_SUCCESS, {});
 
@@ -57,6 +45,30 @@ export class UserService {
             return sendErrorResponse('Something went wrong', {});
 
         }
+    }
+
+    async verifyEmail(registerDto: any): Promise<any> {
+        const { name, email, password, confirmPassword } = registerDto;
+        const resetToken = generateVerificationToken();
+
+        // Register user a stripe customer
+        const customerDetails = await this.stripeService.createCustomer(email, name);
+        // Create a new user
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = this.userRepository.create({
+            name,
+            email,
+            password: hashedPassword,
+            stripe_customer_id: customerDetails.id,
+            ai_token_balance: 20000,
+            email_verification_token: resetToken,
+        });
+
+        await this.userRepository.save(newUser);
+
+        await sendVerificationEmail(email, resetToken)
+        return true;
     }
 
     async findById(id: number): Promise<User> {

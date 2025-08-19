@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, UsePipes, ValidationPipe, Get, Param, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from '../user/dto/registerUser.dto';
 import { LoginUserDto } from '../user/dto/loginUser.dto';
@@ -74,4 +74,15 @@ export class AuthController {
 
         }
     }
+
+    @Get('verify-email/:token')
+    async verifyEmail(@Param('token') token: string) {
+        try {
+            return await this.authService.emailValidation(token);
+        } catch (error) {
+            console.error('Email verification error:', error);
+            return sendErrorResponse('Something went wrong during verification');
+        }
+    }
+
 }

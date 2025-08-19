@@ -64,3 +64,23 @@ export const sendForgotPasswordEmail = async (email: string, resetToken: string)
         throw error;
     }
 };
+
+export const sendVerificationEmail = async (email: string, verificationToken: string): Promise<void> => {
+    try {
+        const template = await loadTemplate('email-verification');
+        const context = {
+            verificationUrl: `${appUrl}/auth/verify-email/${verificationToken}`,
+        };
+        const htmlContent = template(context);
+
+        await sendEmail({
+            to: email,
+            subject: 'Verify Your Email Address',
+            text: `Please verify your email by clicking the following link: ${context.verificationUrl}`,
+            html: htmlContent,
+        });
+    } catch (error) {
+        console.error('Failed to send verification email:', error);
+        throw error;
+    }
+};
