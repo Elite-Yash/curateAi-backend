@@ -4,7 +4,9 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
+import { Campaign } from '../../campaign/entities/campaign.entity';
 
 @Entity('users')
 export class User {
@@ -50,4 +52,10 @@ export class User {
 
     @UpdateDateColumn({ name: 'updated_at' })
     updated_at: Date;
+
+
+    // 👇 relation with Campaign
+    @OneToMany(() => Campaign, (campaign) => campaign.user)
+    campaigns: Campaign[];
+
 }

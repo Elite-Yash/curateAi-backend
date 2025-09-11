@@ -80,10 +80,6 @@ export class AuthService {
     }
 
 
-
-
-
-
     async getUserByEmail(email: string) {
         return await this.UserService.findByEmail(email);
     }
