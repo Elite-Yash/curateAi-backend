@@ -7,6 +7,8 @@ import { generateVerificationToken, sendErrorResponse, sendSuccessResponse } fro
 import { JwtService } from '@nestjs/jwt';
 import { sendForgotPasswordEmail } from 'src/helpers/mailhelper';
 import { INVALID_TOKEN, PASSWORD_RESET_SUCCESSFUL, SOMETHING_WENT_WRONG } from 'src/constants/userMessages';
+import { NotFoundException, UnauthorizedException, ForbiddenException } from "@nestjs/common";
+
 
 @Injectable()
 export class AuthService {
@@ -19,27 +21,64 @@ export class AuthService {
         return this.UserService.registerUser(RegisterUserDto);
     }
 
+    // async validateUser(email: string, password: string): Promise<any> {
+    //     const user = await this.UserService.findByEmail(email);
+    //     if (!user) {
+    //         return false;
+    //     }
+    //     const isMatch = await bcrypt.compare(password, user.password);
+    //     if (!isMatch) {
+    //         return false;
+    //     }
+    //     return user; // Return user details without the password
+    // }
+
+    // async login(user: User) {
+    //     const payload = { id: user.id, email: user.email, subscription_status: user.subscription_status };
+    //     const token = this.jwtService.sign(payload);
+    //     const userData = await this.getUserByEmail(user.email)      
+    //     const { password, ...safeUserData } = userData; // assuming userData has a password
+    //     const respData = { ...safeUserData, auth_token: token };
+
+    //     return sendSuccessResponse("Login successful", respData);
+    // }
+
     async validateUser(email: string, password: string): Promise<any> {
         const user = await this.UserService.findByEmail(email);
+
         if (!user) {
-            return false;
+            throw new NotFoundException("User not found");
         }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return false;
+            throw new UnauthorizedException("Invalid password");
         }
-        return user; // Return user details without the password
+
+        if (!user.is_email_verified) {
+            throw new ForbiddenException("Please verify your email");
+        }
+
+        return user;
     }
 
+
     async login(user: User) {
-        const payload = { id: user.id, email: user.email, subscription_status: user.subscription_status };
+        const payload = {
+            id: user.id,
+            email: user.email,
+            subscription_status: user.subscription_status
+        };
+
         const token = this.jwtService.sign(payload);
-        const userData = await this.getUserByEmail(user.email)
-        const { password, ...safeUserData } = userData; // assuming userData has a password
+        const userData = await this.getUserByEmail(user.email);
+        const { password, ...safeUserData } = userData;
+
         const respData = { ...safeUserData, auth_token: token };
 
         return sendSuccessResponse("Login successful", respData);
     }
+
 
     async getUserByEmail(email: string) {
         return await this.UserService.findByEmail(email);

@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Param, Body, Delete, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Delete, HttpStatus, Req, Patch } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 export class CommentsController {
@@ -55,4 +56,38 @@ export class CommentsController {
       message: 'Comment deleted successfully',
     };
   }
+
+  @Patch(':id/post-url')
+  async updateCommentUrl(
+    @Param('id') id: number,
+    @Body() { post_url }: UpdateCommentDto,
+  ) {
+    if (!post_url) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'post_url is required',
+        data: null,
+      };
+    }
+
+    const updatedComment = await this.commentsService.updateCommentUrl(
+      id,
+      post_url,
+    );
+
+    if (!updatedComment) {
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Comment not found or already posted',
+        data: null,
+      };
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Comment updated successfully',
+      data: updatedComment,
+    };
+  }
+
 }
