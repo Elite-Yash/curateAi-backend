@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Req, UploadedFile, UseInterceptors, Delete, Param, Get, Put, UsePipes, ValidationPipe, ParseIntPipe, Query } from '@nestjs/common';
-import { CampaignService } from './campaign.service';
+import { CampaignService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
@@ -11,7 +11,7 @@ export class CampaignController {
 
   //** Create campaign  */
   @Post("create-campaign")
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('csvFile'))
   async create(
     @Req() req,
     @Body() createCampaignDto: CreateCampaignDto,

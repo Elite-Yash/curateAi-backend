@@ -27,8 +27,8 @@ import { CommentsController } from './modules/comments/comments.controller';
 import { CrmController } from './modules/crm/crm.controller';
 import { CrmService } from './modules/crm/crm.service';
 import { CrmModule } from './modules/crm/crm.module'; 
-import { CampaignController } from './modules/campaign/campaign.controller';
-import { CampaignModule } from './modules/campaign/campaign.module'; 
+import { CampaignController } from './modules/campaigns/campaigns.controller';
+import { CampaignModule } from './modules/campaigns/campaigns.module'; 
 
 @Module({
   imports: [

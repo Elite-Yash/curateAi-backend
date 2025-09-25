@@ -17,7 +17,7 @@ export class Campaign {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: false, default: '' })
   url: string;
 
   @Column({
@@ -44,9 +44,6 @@ export class Campaign {
 
   @Column({ type: 'int', nullable: true })
   max_connections: number;
-
-  @Column({ type: 'int', nullable: true })
-  file: number;
 
   // 👇 relation with User
   @ManyToOne(() => User, (user) => user.campaigns, { onDelete: 'CASCADE' })
