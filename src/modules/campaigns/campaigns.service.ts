@@ -9,9 +9,10 @@ import { Profile } from '../profiles/entities/profile.entity';
 import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
 import { CsvProfile } from './entities/csv_profiles.entity';
+import { validateCsvFile } from 'src/utils/csv-utils';
 
 @Injectable()
-export class CampaignService {
+export class CampaignsService {
   constructor(
     @InjectRepository(Campaign)
     private campaignRepository: Repository<Campaign>,
@@ -45,60 +46,44 @@ export class CampaignService {
 
     // Step 3: Handle CSV import if applicable
     if (dto.import_type === 'csv') {
-      if (!file) throw new BadRequestException('CSV file required');
-      if (!file.mimetype.includes('csv')) throw new BadRequestException('Only CSV files allowed');
-
-      // Step 3a: Parse CSV into memory
-      const csvData: any[] = [];
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(file.buffer)
-        .pipe(csvParser())
-        .on('data', (row) => csvData.push(row))
-        .on('end', () => resolve())
-        .on('error', (err) => reject(err));
-      });
-      
-      // Step 3b: Validate CSV rows
       const requiredFields = ['profile_name', 'profile_url', 'profile_id'];
-      console.log(". ~ createCampaign ~ csvData:", csvData)
-      const invalidRows = [];
-      const validRows = csvData.map((row, index) => {
-        const missing = requiredFields.filter((f) => !row[f]);
-        if (missing.length > 0) {
-          invalidRows.push({ row: index + 1, missingFields: missing });
-          return null;
-        }
-        return {
-          profile_name: row.profile_name,
-          profile_img: row.profile_img || null,
-          profile_url: row.profile_url,
-          profile_id: row.profile_id,
-          campaign_id: savedCampaign.id,
-          user_id: user.id,
-        };
-      }).filter(r => r !== null);
 
-      // Step 3c: Throw error if any row is invalid
-      if (invalidRows.length > 0) {
-        throw new BadRequestException(`Invalid CSV rows: ${JSON.stringify(invalidRows)}`);
-      }
+      const { validRows } = await validateCsvFile(file, requiredFields);
 
-      // Step 3d: Save valid rows to csvProfileRepository
-      console.log(". ~ createCampaign ~ validRows.length:", validRows.length)
-      console.log(". ~ createCampaign ~ validRows:", validRows)
-      if (validRows.length) {
-        const rrr = await this.csvProfileRepository.save(validRows);
-        console.log(". ~ createCampaign ~ rrr:", rrr)
+      // Transform rows before saving
+      const rowsToSave = validRows.map((row: any) => ({
+        profile_name: row.profile_name,
+        profile_img: row.profile_img || null,
+        profile_url: row.profile_url,
+        profile_id: row.profile_id,
+        campaign_id: savedCampaign.id,
+        user_id: user.id,
+      }));
+
+      if (rowsToSave.length) {
+        await this.csvProfileRepository.save(rowsToSave);
       }
 
       return {
-        message: `Campaign created successfully with ${validRows.length} profiles`,
+        statusCode: 200,
+        message: `Campaign created successfully`,
+        data: {
+          campaignId: savedCampaign.id,
+          profilesCount: rowsToSave.length,
+        },
       };
     }
 
     // Step 4: Return success for non-CSV campaigns
-    return { message: 'Campaign created successfully' };
+    return {
+      statusCode: 200,
+      message: 'Campaign created successfully',
+      data: {
+        campaignId: savedCampaign.id,
+      },
+    };
   }
+
 
   /** Delete campaign only if it belongs to the given userId */
   async deleteCampaign(
