@@ -29,6 +29,8 @@ import { CrmService } from './modules/crm/crm.service';
 import { CrmModule } from './modules/crm/crm.module';
 import { CampaignsController } from './modules/campaigns/campaigns.controller';
 import { CampaignsModule } from './modules/campaigns/campaigns.module';
+import { TemplatesController } from './modules/campaigns-template/campaigns-template.controller';
+import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-template.module';
 
 @Module({
   imports: [
@@ -54,6 +56,7 @@ import { CampaignsModule } from './modules/campaigns/campaigns.module';
     CommentsModule,
     CrmModule,
     CampaignsModule,
+    CampaignsTemplateModule,
   ],
   controllers: [
     AppController,
@@ -61,6 +64,7 @@ import { CampaignsModule } from './modules/campaigns/campaigns.module';
     StripeController,
     UserSubscriptionController,
     CrmController,
+    TemplatesController,
   ],
   providers: [AppService, ChatgptService, JwtService],
 })
@@ -76,6 +80,7 @@ export class AppModule implements NestModule {
         CommentsController,
         CrmController,
         CampaignsController,
+        TemplatesController,
       );
   }
 }

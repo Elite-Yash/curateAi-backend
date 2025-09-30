@@ -23,8 +23,7 @@ export class CampaignsController {
 
   /** Delete campaign only if it belongs to the given userId */
   @Delete(':id')
-  async deleteCampaign(
-    @Req() req: any,
+  async deleteCampaign(    @Req() req: any,
     @Param('id') campaignId: number
   ) {
     const userId = req.user.id;
