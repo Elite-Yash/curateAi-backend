@@ -46,16 +46,19 @@ export class CampaignsService {
 
     // Step 3: Handle CSV import if applicable
     if (dto.import_type === 'csv') {
-      const requiredFields = ['profile_name', 'profile_url', 'profile_id'];
+      const requiredFields = ['Name', 'URL',];
 
       const { validRows } = await validateCsvFile(file, requiredFields);
 
       // Transform rows before saving
       const rowsToSave = validRows.map((row: any) => ({
-        profile_name: row.profile_name,
-        profile_img: row.profile_img || null,
-        profile_url: row.profile_url,
-        profile_id: row.profile_id,
+        profile_name: row['Name'],
+        profile_id: row['profile_id'] || null,
+        profile_url: row['URL'],
+        email: row['Email'] || null, 
+        position: row['Position'] || null,
+        organization: row['Organization'] || null,
+        created_at: new Date(),
         campaign_id: savedCampaign.id,
         user_id: user.id,
       }));

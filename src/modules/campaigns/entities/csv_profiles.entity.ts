@@ -8,14 +8,20 @@ export class CsvProfile {
     @Column({ type: "varchar", length: 255 })
     profile_name: string;
 
-    @Column({ type: "varchar", length: 255, nullable: true })
-    profile_img?: string;
-
     @Column({ type: "varchar", length: 255 })
     profile_url: string;
 
-    @Column({ type: "varchar", length: 255 })
-    profile_id: string;
+    @Column({ type: "varchar", length: 255, nullable: true })
+    profile_id?: string;
+
+    @Column({ type: "varchar", length: 255, nullable: true })
+    email?: string;
+
+    @Column({ type: "varchar", length: 255, nullable: true })
+    position?: string;
+
+    @Column({ type: "varchar", length: 255, nullable: true })
+    organization?: string;
 
     @Column({ type: "int" })
     campaign_id: number;
