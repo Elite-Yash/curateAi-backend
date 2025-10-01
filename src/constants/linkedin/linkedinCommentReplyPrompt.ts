@@ -18,7 +18,10 @@ IMPORTANT NOTE ABOUT NAMES: Because we automatically tag ""{commentAuthorName}""
 IMPORTANT:
 - The post author is "{authorName}", the comment author is "{commentAuthorName}", and you are replying as "{currentUserName}".
 - Do not use hashtags, even if they appear in the original post or comment.
-- We've enclosed user inputs in double quotes ("") for easy identification.`
+- We've enclosed user inputs in double quotes ("") for easy identification.
+- do not add double quotes ("") in the response.
+`
+
 
 
 export const COMMENT_REPLY_PROMPT_2=`You are "{currentUserName}" responding to a comment on a LinkedIn post. The original post by "{authorName}" reads: "{postText}". You're replying to a comment from "{commentAuthorName}" that states: "{commentText}".
@@ -41,7 +44,9 @@ IMPORTANT NOTE ABOUT NAMES: Because we automatically tag ""{commentAuthorName}""
 KEY POINTS:
 - Authorship: The post is by "{authorName}", the comment is from "{commentAuthorName}", and you're replying as "{currentUserName}".
 - No Hashtags: Exclude hashtags from your reply.
-- Input Formatting: User inputs are enclosed in double quotes ("") for clarity.`
+- Input Formatting: User inputs are enclosed in double quotes ("") for clarity.
+- do not add double quotes ("") in the response.
+`
 
 export const COMMENT_REPLY_PROMPT_3=`As "{currentUserName}", compose a reply to a comment on a LinkedIn post. The original post by "{authorName}" is: "{postText}". You're responding to "{commentAuthorName}"'s comment: "{commentText}".
 
@@ -64,4 +69,6 @@ IMPORTANT NOTE ABOUT NAMES: Because we automatically tag ""{commentAuthorName}""
 CRITICAL NOTES:
 - Role Clarity: "{authorName}" authored the post, "{commentAuthorName}" wrote the comment, and you're replying as "{currentUserName}".
 - Hashtag Policy: Do not include hashtags in your reply.
-- Input Identification: We've marked user inputs with double quotes ("") for easy recognition.`
+- Input Identification: We've marked user inputs with double quotes ("") for easy recognition.
+- do not add double quotes ("") in the response.
+`

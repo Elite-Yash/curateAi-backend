@@ -18,11 +18,12 @@ export class TemplatesService {
     return {
       message: 'Template created successfully',
       data: template,
+      statusCode: 200
     };
   }
 
   // Fetch all with pagination and search
-  async findAll(userId: number, search?: string, page = 1, limit = 10) {
+  async findAllByUser(userId: number, search?: string, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
 
     const [templates, total] = await this.templateRepo.findAndCount({
@@ -63,7 +64,8 @@ export class TemplatesService {
     const template = await this.templateRepo.findOne({ where: { id } });
     if (!template) throw new NotFoundException('Template not found');
 
-    await this.templateRepo.softRemove(template);
+    await this.templateRepo.remove(template);
     return { message: 'Template deleted successfully' };
   }
+
 }
