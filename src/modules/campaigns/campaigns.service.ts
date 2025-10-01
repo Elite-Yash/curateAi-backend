@@ -8,9 +8,11 @@ import { User } from '../user/entities/user.entity';
 import { Profile } from '../profiles/entities/profile.entity';
 import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
+import { CsvProfile } from './entities/csv_profiles.entity';
+import { validateCsvFile } from 'src/utils/csv-utils';
 
 @Injectable()
-export class CampaignService {
+export class CampaignsService {
   constructor(
     @InjectRepository(Campaign)
     private campaignRepository: Repository<Campaign>,
@@ -18,55 +20,73 @@ export class CampaignService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
-    @InjectRepository(Profile)
-    private profileRepository: Repository<Profile>,
+    @InjectRepository(CsvProfile)
+    private csvProfileRepository: Repository<CsvProfile>,
   ) { }
 
   /** Create campaign  */
   async createCampaign(userId: number, dto: CreateCampaignDto, file?: Express.Multer.File) {
-    // ✅ Check if user exists
+    // Step 1: Verify user exists
     const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    if (!user) throw new NotFoundException('User not found');
 
-    // ✅ Create campaign
+    // Step 2: Create campaign entity
     const campaign = this.campaignRepository.create({
-      ...dto,
-      user, // Pass user entity instead of user_id
+      name: dto.name,
+      url: dto.url || '',
+      type: dto.type,
+      message: dto.message,
+      status: dto.status || 'active',
+      import_type: dto.import_type,
+      max_connections: dto.max_connections,
+      user,
     });
-    await this.campaignRepository.save(campaign);
 
-    // ✅ Handle CSV upload
+    const savedCampaign = await this.campaignRepository.save(campaign);
+
+    // Step 3: Handle CSV import if applicable
     if (dto.import_type === 'csv') {
-      if (!file) throw new BadRequestException('CSV file required');
-      if (!file.mimetype.includes('csv')) throw new BadRequestException('Only CSV allowed');
+      const requiredFields = ['Name', 'URL',];
 
-      const csvData: any[] = [];
+      const { validRows } = await validateCsvFile(file, requiredFields);
 
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(file.buffer)
-          .pipe(csvParser())
-          .on('data', (row) => {
-            csvData.push({
-              ...row,
-              campaign: campaign, // associate campaign entity
-              user,               // associate user entity
-            });
-          })
-          .on('end', () => resolve())
-          .on('error', (err) => reject(err));
-      });
+      // Transform rows before saving
+      const rowsToSave = validRows.map((row: any) => ({
+        profile_name: row['Name'],
+        profile_id: row['profile_id'] || null,
+        profile_url: row['URL'],
+        email: row['Email'] || null, 
+        position: row['Position'] || null,
+        organization: row['Organization'] || null,
+        created_at: new Date(),
+        campaign_id: savedCampaign.id,
+        user_id: user.id,
+      }));
 
-      if (csvData.length) {
-        await this.profileRepository.save(csvData);
+      if (rowsToSave.length) {
+        await this.csvProfileRepository.save(rowsToSave);
       }
 
-      return { message: `Campaign created successfully with ${csvData.length} profiles` };
+      return {
+        statusCode: 200,
+        message: `Campaign created successfully`,
+        data: {
+          campaignId: savedCampaign.id,
+          profilesCount: rowsToSave.length,
+        },
+      };
     }
 
-    return { message: 'Campaign created successfully', statusCode: 200 };
+    // Step 4: Return success for non-CSV campaigns
+    return {
+      statusCode: 200,
+      message: 'Campaign created successfully',
+      data: {
+        campaignId: savedCampaign.id,
+      },
+    };
   }
+
 
   /** Delete campaign only if it belongs to the given userId */
   async deleteCampaign(
@@ -212,7 +232,7 @@ export class CampaignService {
         // await this.profileRepository.delete({ campaign: { id: campaignId } });
 
         // Save new profiles
-        await this.profileRepository.save(csvData);
+        await this.csvProfileRepository.save(csvData);
       }
     }
 

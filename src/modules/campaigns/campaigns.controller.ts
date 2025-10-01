@@ -1,17 +1,17 @@
 import { Controller, Post, Body, UseGuards, Req, UploadedFile, UseInterceptors, Delete, Param, Get, Put, UsePipes, ValidationPipe, ParseIntPipe, Query } from '@nestjs/common';
-import { CampaignService } from './campaign.service';
+import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 // import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('campaigns')
-export class CampaignController {
-  constructor(private readonly campaignService: CampaignService) { }
+export class CampaignsController {
+  constructor(private readonly campaignService: CampaignsService) { }
 
   //** Create campaign  */
   @Post("create-campaign")
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('csvFile'))
   async create(
     @Req() req,
     @Body() createCampaignDto: CreateCampaignDto,
@@ -23,8 +23,7 @@ export class CampaignController {
 
   /** Delete campaign only if it belongs to the given userId */
   @Delete(':id')
-  async deleteCampaign(
-    @Req() req: any,
+  async deleteCampaign(    @Req() req: any,
     @Param('id') campaignId: number
   ) {
     const userId = req.user.id;

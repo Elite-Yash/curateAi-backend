@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
     OneToMany,
 } from 'typeorm';
-import { Campaign } from '../../campaign/entities/campaign.entity';
+import { Campaign } from '../../campaigns/entities/campaign.entity';
 
 @Entity('users')
 export class User {
