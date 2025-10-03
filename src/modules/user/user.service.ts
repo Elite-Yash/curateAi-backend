@@ -63,6 +63,7 @@ export class UserService {
             stripe_customer_id: customerDetails.id,
             ai_token_balance: 20000,
             email_verification_token: resetToken,
+            is_email_verified: true
         });
 
         await this.userRepository.save(newUser);
