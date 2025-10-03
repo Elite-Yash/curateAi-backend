@@ -26,7 +26,7 @@ export class CampaignsService {
     @InjectRepository(CsvProfile)
     private csvProfileRepository: Repository<CsvProfile>,
 
-     @InjectRepository(AutomationProcess)
+    @InjectRepository(AutomationProcess)
     private automationProcessRepository: Repository<AutomationProcess>,
   ) { }
 
@@ -61,7 +61,7 @@ export class CampaignsService {
         profile_name: row['Name'],
         profile_id: row['profile_id'] || null,
         profile_url: row['URL'],
-        email: row['Email'] || null, 
+        email: row['Email'] || null,
         position: row['Position'] || null,
         organization: row['Organization'] || null,
         created_at: new Date(),
@@ -249,40 +249,35 @@ export class CampaignsService {
   }
 
 
-//** Create-Automation **/
-async createAutomation(userId: number, dto: CreateAutomationProcessDto) {
-  // Check if campaign exists
-  const campaign = await this.campaignRepository.findOne({ where: { id: dto.campaign_id } });
-  if (!campaign) {
-    throw new NotFoundException(`Campaign with id ${dto.campaign_id} not found`);
-  }
+  //** Create-Automation **/
+  async createAutomation(userId: number, dto: CreateAutomationProcessDto) {
+    // Check if campaign exists
+    const campaign = await this.campaignRepository.findOne({ where: { id: dto.campaign_id } });
+    if (!campaign) {
+      throw new NotFoundException(`Campaign with id ${dto.campaign_id} not found`);
+    }
 
-  // Check if automation process already exists
-  const existing = await this.automationProcessRepository.findOne({
-    where: { campaign_id: dto.campaign_id, user_id: userId },
-  });
-
-  if (existing) {
-    return { automation_id: existing.id, message: 'Automation process already exists' };
-  }
-
-  // 3️Create new automation process
-  try {
-    const newProcess = this.automationProcessRepository.create({
-      ...dto,
-      user_id: userId,
+    // Check if automation process already exists
+    const existing = await this.automationProcessRepository.findOne({
+      where: { campaign_id: dto.campaign_id, user_id: userId },
     });
 
-    await this.automationProcessRepository.save(newProcess);
+    if (existing) {
+      return { automation_id: existing.id, message: 'Automation process already exists' };
+    }
 
-    return { automation_id: newProcess.id, message: 'Automation process created successfully' };
-  } catch (error) {
-    console.error('Error creating automation process:', error);
-    throw new InternalServerErrorException('Failed to create automation process');
+    try {
+      const newProcess = this.automationProcessRepository.create({
+        ...dto,
+        user_id: userId,
+      });
+
+      await this.automationProcessRepository.save(newProcess);
+
+      return { automation_id: newProcess.id, message: 'Automation process created successfully' };
+    } catch (error) {
+      console.error('Error creating automation process:', error);
+      throw new InternalServerErrorException('Failed to create automation process');
+    }
   }
-}
-
-
-
-
 }

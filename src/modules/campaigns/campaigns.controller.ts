@@ -4,11 +4,7 @@ import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
 // import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-
-
-
 import { CreateAutomationProcessDto } from './dto/create-automation-process.dto';
-
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -28,7 +24,7 @@ export class CampaignsController {
 
   /** Delete campaign only if it belongs to the given userId */
   @Delete(':id')
-  async deleteCampaign(    @Req() req: any,
+  async deleteCampaign(@Req() req: any,
     @Param('id') campaignId: number
   ) {
     const userId = req.user.id;
@@ -119,19 +115,14 @@ export class CampaignsController {
       };
     }
   }
-  
 
-
- @Post('create-automation-process')
+  @Post('create-automation-process')
   async createAutomation(
     @Req() req,
     @Body() dto: CreateAutomationProcessDto,
   ) {
-     const userId = req.user.id;
+    const userId = req.user.id;
     return this.campaignService.createAutomation(userId, dto);
   }
-
-
-
 
 }

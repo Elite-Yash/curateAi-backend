@@ -34,11 +34,6 @@ export class CreateAutomationProcess1759489600730 implements MigrationInterface 
             enum: ["incomplete", "in progress", "completed"],
             default: "'incomplete'",
           },
-          // {
-          //   name: "next_profile_id",
-          //   type: "int",
-          //   isNullable: true,
-          // },
           {
             name: "created_at",
             type: "timestamp",
