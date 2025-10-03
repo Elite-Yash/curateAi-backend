@@ -11,6 +11,9 @@ import { Readable } from 'stream';
 import { CsvProfile } from './entities/csv_profiles.entity';
 import { validateCsvFile } from 'src/utils/csv-utils';
 
+import { AutomationProcess } from './entities/automation-process.entity';
+import { CreateAutomationProcessDto } from './dto/create-automation-process.dto';
+
 @Injectable()
 export class CampaignsService {
   constructor(
@@ -22,6 +25,9 @@ export class CampaignsService {
 
     @InjectRepository(CsvProfile)
     private csvProfileRepository: Repository<CsvProfile>,
+
+     @InjectRepository(AutomationProcess)
+    private automationProcessRepository: Repository<AutomationProcess>,
   ) { }
 
   /** Create campaign  */
@@ -241,5 +247,42 @@ export class CampaignsService {
 
     return updatedCampaign;
   }
+
+
+//** Create-Automation **/
+async createAutomation(userId: number, dto: CreateAutomationProcessDto) {
+  // Check if campaign exists
+  const campaign = await this.campaignRepository.findOne({ where: { id: dto.campaign_id } });
+  if (!campaign) {
+    throw new NotFoundException(`Campaign with id ${dto.campaign_id} not found`);
+  }
+
+  // Check if automation process already exists
+  const existing = await this.automationProcessRepository.findOne({
+    where: { campaign_id: dto.campaign_id, user_id: userId },
+  });
+
+  if (existing) {
+    return { automation_id: existing.id, message: 'Automation process already exists' };
+  }
+
+  // 3️Create new automation process
+  try {
+    const newProcess = this.automationProcessRepository.create({
+      ...dto,
+      user_id: userId,
+    });
+
+    await this.automationProcessRepository.save(newProcess);
+
+    return { automation_id: newProcess.id, message: 'Automation process created successfully' };
+  } catch (error) {
+    console.error('Error creating automation process:', error);
+    throw new InternalServerErrorException('Failed to create automation process');
+  }
+}
+
+
+
 
 }
