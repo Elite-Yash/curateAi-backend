@@ -202,7 +202,10 @@ export class GenerateaiContentService {
             }
 
             const res = await this.ChatgptService.generateContent(promptTemplate, model);
-            const gptResponse = res.content;
+            let gptResponse = res.content.trim();
+            if (gptResponse.startsWith('"') && gptResponse.endsWith('"')) {
+                gptResponse = gptResponse.slice(1, -1);
+            }
             const totalTokensUsed = res.usage_metadata.total_tokens;
 
             await this.userService.updateUserAiTokenBalance(currentUserId, totalTokensUsed);

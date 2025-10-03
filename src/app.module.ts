@@ -26,9 +26,11 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { CommentsController } from './modules/comments/comments.controller';
 import { CrmController } from './modules/crm/crm.controller';
 import { CrmService } from './modules/crm/crm.service';
-import { CrmModule } from './modules/crm/crm.module'; 
-import { CampaignController } from './modules/campaign/campaign.controller';
-import { CampaignModule } from './modules/campaign/campaign.module'; 
+import { CrmModule } from './modules/crm/crm.module';
+import { CampaignsController } from './modules/campaigns/campaigns.controller';
+import { CampaignsModule } from './modules/campaigns/campaigns.module';
+import { TemplatesController } from './modules/campaigns-template/campaigns-template.controller';
+import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-template.module';
 
 @Module({
   imports: [
@@ -42,7 +44,7 @@ import { CampaignModule } from './modules/campaign/campaign.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: false,
-      
+
     }),
     GenerateaiContentModule,
     UserModule,
@@ -53,7 +55,8 @@ import { CampaignModule } from './modules/campaign/campaign.module';
     ProfilesModule,
     CommentsModule,
     CrmModule,
-    CampaignModule,
+    CampaignsModule,
+    CampaignsTemplateModule,
   ],
   controllers: [
     AppController,
@@ -61,6 +64,7 @@ import { CampaignModule } from './modules/campaign/campaign.module';
     StripeController,
     UserSubscriptionController,
     CrmController,
+    TemplatesController,
   ],
   providers: [AppService, ChatgptService, JwtService],
 })
@@ -75,7 +79,8 @@ export class AppModule implements NestModule {
         ProfilesController,
         CommentsController,
         CrmController,
-        CampaignController,
+        CampaignsController,
+        TemplatesController,
       );
   }
 }
