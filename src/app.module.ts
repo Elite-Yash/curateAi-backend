@@ -31,6 +31,8 @@ import { CampaignsController } from './modules/campaigns/campaigns.controller';
 import { CampaignsModule } from './modules/campaigns/campaigns.module';
 import { TemplatesController } from './modules/campaigns-template/campaigns-template.controller';
 import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-template.module';
+import { ProcessActivitiesController } from './modules/process-activities/process-activities.controller';
+import { ProcessActivitiesModule } from './modules/process-activities/process-activities.module';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-
     CrmModule,
     CampaignsModule,
     CampaignsTemplateModule,
+    ProcessActivitiesModule,
   ],
   controllers: [
     AppController,
@@ -81,6 +84,7 @@ export class AppModule implements NestModule {
         CrmController,
         CampaignsController,
         TemplatesController,
+        ProcessActivitiesController,
       );
   }
 }
