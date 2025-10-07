@@ -49,5 +49,5 @@ export class CreateCommentDto {
 
   @IsOptional()
   @IsString()
-  genarateTitle?: string;
+  genarate_title?: string;
 }
