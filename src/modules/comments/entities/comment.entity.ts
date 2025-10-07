@@ -71,4 +71,7 @@ export class Comment {
 
     @Column({ type: "boolean", default: false })
     is_comment_posted: boolean;
+
+    @Column({ type: "varchar", length: 255, nullable: true, name: "genarate title" })
+    genarateTitle: string | null;
 }

@@ -46,4 +46,8 @@ export class CreateCommentDto {
   @IsOptional()
   @IsEnum(CommentStatus)
   status?: CommentStatus = CommentStatus.PUBLISHED;
+
+  @IsOptional()
+  @IsString()
+  genarateTitle?: string;
 }

@@ -18,7 +18,7 @@ export class CommentsService {
   }
 
   async findAll(user_id: number): Promise<Comment[]> {
-    return this.commentRepository.find({ where: { user_id: user_id } });
+    return await this.commentRepository.find({ where: { user_id: user_id } });
   }
 
   async findOne(id: number): Promise<Comment> {
