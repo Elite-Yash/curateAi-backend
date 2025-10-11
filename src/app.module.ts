@@ -37,6 +37,8 @@ import { WorkspacesController } from './modules/workspaces/workspaces.controller
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
 import { WorkspaceGroupsController } from './modules/workspace-groups/workspace-groups.controller';
 import { WorkspaceGroupsModule } from './modules/workspace-groups/workspace-groups.module';
+import { PersonasModule } from './modules/personas/personas.module';
+import { PersonasController } from './modules/personas/personas.controller';
 
 @Module({
   imports: [
@@ -66,6 +68,7 @@ import { WorkspaceGroupsModule } from './modules/workspace-groups/workspace-grou
     ProcessActivitiesModule,
     WorkspacesModule,
     WorkspaceGroupsModule,
+    PersonasModule,
   ],
   controllers: [
     AppController,
@@ -93,6 +96,7 @@ export class AppModule implements NestModule {
         ProcessActivitiesController,
         WorkspacesController,
         WorkspaceGroupsController,
+        PersonasController,
       );
   }
 }
