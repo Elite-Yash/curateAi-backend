@@ -33,6 +33,10 @@ import { TemplatesController } from './modules/campaigns-template/campaigns-temp
 import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-template.module';
 import { ProcessActivitiesController } from './modules/process-activities/process-activities.controller';
 import { ProcessActivitiesModule } from './modules/process-activities/process-activities.module';
+import { WorkspacesController } from './modules/workspaces/workspaces.controller';
+import { WorkspacesModule } from './modules/workspaces/workspaces.module';
+import { WorkspaceGroupsController } from './modules/workspace-groups/workspace-groups.controller';
+import { WorkspaceGroupsModule } from './modules/workspace-groups/workspace-groups.module';
 
 @Module({
   imports: [
@@ -60,6 +64,8 @@ import { ProcessActivitiesModule } from './modules/process-activities/process-ac
     CampaignsModule,
     CampaignsTemplateModule,
     ProcessActivitiesModule,
+    WorkspacesModule,
+    WorkspaceGroupsModule,
   ],
   controllers: [
     AppController,
@@ -85,6 +91,8 @@ export class AppModule implements NestModule {
         CampaignsController,
         TemplatesController,
         ProcessActivitiesController,
+        WorkspacesController,
+        WorkspaceGroupsController,
       );
   }
 }

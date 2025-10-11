@@ -7,6 +7,7 @@ import {
     OneToMany,
 } from 'typeorm';
 import { Campaign } from '../../campaigns/entities/campaign.entity';
+import { Workspace } from 'src/modules/workspaces/entities/workspace.entity';
 
 @Entity('users')
 export class User {
@@ -57,5 +58,9 @@ export class User {
     // 👇 relation with Campaign
     @OneToMany(() => Campaign, (campaign) => campaign.user)
     campaigns: Campaign[];
+
+    // 👇 relation with Workspace
+    @OneToMany(() => Workspace, (workspace) => workspace.user)
+    workspaces: Workspace[];
 
 }
