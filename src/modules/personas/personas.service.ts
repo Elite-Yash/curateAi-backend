@@ -43,8 +43,9 @@ export class PersonasService {
   }
 
   // Get all
-  async findAll() {
+  async findAll(userId: number,) {
     const personas = await this.personaRepository.find({
+      where: { user_id: userId },
       order: { createdAt: 'DESC' },
     });
     return {
@@ -89,6 +90,8 @@ export class PersonasService {
         .set({ isdefault: false })
         .where("user_id = :userId", { userId: persona.data.user_id })
         .execute();
+
+      persona.data.isdefault = true;
     }
 
     Object.assign(persona.data, updatePersonaDto);

@@ -23,10 +23,10 @@ export class PersonasController {
     return this.personasService.create(currentUser.id, createPersonaDto);
   }
 
-
   @Get()
-  findAll() {
-    return this.personasService.findAll();
+  findAll(@Req() req: any,) {
+    const currentUser = req.user;
+    return this.personasService.findAll(currentUser.id);
   }
 
   @Get(':id')
