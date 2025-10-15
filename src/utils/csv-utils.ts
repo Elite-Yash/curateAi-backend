@@ -46,3 +46,13 @@ export async function validateCsvFile<T = any>(
 
   return { validRows: validRows as T[], invalidRows };
 }
+
+export const getProfileId = (url) => {
+  try {
+    const segments = url?.split("/")?.filter((segment) => segment); // Split and remove empty segments
+    const lastSegment = segments[segments.length - 1]; // Get the last segment
+    return lastSegment;
+  } catch (e) {
+    return url;
+  }
+};

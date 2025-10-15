@@ -31,6 +31,14 @@ import { CampaignsController } from './modules/campaigns/campaigns.controller';
 import { CampaignsModule } from './modules/campaigns/campaigns.module';
 import { TemplatesController } from './modules/campaigns-template/campaigns-template.controller';
 import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-template.module';
+import { ProcessActivitiesController } from './modules/process-activities/process-activities.controller';
+import { ProcessActivitiesModule } from './modules/process-activities/process-activities.module';
+import { WorkspacesController } from './modules/workspaces/workspaces.controller';
+import { WorkspacesModule } from './modules/workspaces/workspaces.module';
+import { WorkspaceGroupsController } from './modules/workspace-groups/workspace-groups.controller';
+import { WorkspaceGroupsModule } from './modules/workspace-groups/workspace-groups.module';
+import { PersonasModule } from './modules/personas/personas.module';
+import { PersonasController } from './modules/personas/personas.controller';
 
 @Module({
   imports: [
@@ -57,6 +65,10 @@ import { CampaignsTemplateModule } from './modules/campaigns-template/campaigns-
     CrmModule,
     CampaignsModule,
     CampaignsTemplateModule,
+    ProcessActivitiesModule,
+    WorkspacesModule,
+    WorkspaceGroupsModule,
+    PersonasModule,
   ],
   controllers: [
     AppController,
@@ -81,6 +93,10 @@ export class AppModule implements NestModule {
         CrmController,
         CampaignsController,
         TemplatesController,
+        ProcessActivitiesController,
+        WorkspacesController,
+        WorkspaceGroupsController,
+        PersonasController,
       );
   }
 }

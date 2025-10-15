@@ -9,7 +9,7 @@ import { Profile } from '../profiles/entities/profile.entity';
 import * as csvParser from 'csv-parser';
 import { Readable } from 'stream';
 import { CsvProfile } from './entities/csv_profiles.entity';
-import { validateCsvFile } from 'src/utils/csv-utils';
+import { getProfileId, validateCsvFile } from 'src/utils/csv-utils';
 
 import { AutomationProcess } from './entities/automation-process.entity';
 import { CreateAutomationProcessDto } from './dto/create-automation-process.dto';
@@ -59,7 +59,7 @@ export class CampaignsService {
       // Transform rows before saving
       const rowsToSave = validRows.map((row: any) => ({
         profile_name: row['Name'],
-        profile_id: row['profile_id'] || null,
+        profile_id: getProfileId(row['URL']) || null,
         profile_url: row['URL'],
         email: row['Email'] || null,
         position: row['Position'] || null,
@@ -274,7 +274,7 @@ export class CampaignsService {
 
       await this.automationProcessRepository.save(newProcess);
 
-      return { automation_id: newProcess.id, message: 'Automation process created successfully' };
+      return { statusCode: 201, automation_id: newProcess.id, message: 'Automation process created successfully' };
     } catch (error) {
       console.error('Error creating automation process:', error);
       throw new InternalServerErrorException('Failed to create automation process');

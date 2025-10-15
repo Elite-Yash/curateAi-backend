@@ -16,7 +16,7 @@ export class ProfilesService {
   constructor(
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
-  ) {}
+  ) { }
 
   async create(user_id: number, data: CreateProfileDto): Promise<any> {
     let res = {
@@ -25,19 +25,13 @@ export class ProfilesService {
       data: {},
     };
 
-    // const existingProfile = await this.profileRepository.findOne({
-    //   where: { email: data.email, user_id: user_id },
-    // });
-    // if (existingProfile) {
-    //   res.status = 400;
-    //   res.message = 'Profile with this email already exists';
-    //   return res;
-    // }
-
-    const updatedData = {
+    // ✅ Convert skill array to string for DB
+    const updatedData: any = {
       ...data,
-      user_id: user_id,
+      user_id,
+      skill: Array.isArray(data.skill) ? JSON.stringify(data.skill) : data.skill,
     };
+
     const profile = this.profileRepository.create(updatedData);
     const savedProfileData = await this.profileRepository.save(profile);
 
@@ -51,6 +45,8 @@ export class ProfilesService {
     user_id: number,
     page: number = 1,
     limit: number = 10,
+    workspace_id: number,
+    group_id: number
   ): Promise<any> {
     const skip = (page - 1) * limit;
 
@@ -58,8 +54,10 @@ export class ProfilesService {
       take: limit,
       skip: skip,
       where: {
-        deleted_at: IsNull(), // Ensures only active profiles are retrieved
-        user_id: user_id, // Filters by user ID
+        deleted_at: IsNull(),
+        user_id,
+        ...(workspace_id ? { workspace_id } : {}),
+        ...(group_id ? { group_id } : {}),
       },
       order: { created_at: 'DESC' },
     });
@@ -76,6 +74,7 @@ export class ProfilesService {
       },
     };
   }
+
   findOne(id: number) {
     return `This action returns a #${id} profile`;
   }
@@ -94,7 +93,8 @@ export class ProfilesService {
     });
 
     const headers = [
-      'Name',
+      'First Name',
+      'Last Name',
       'Email',
       'Position',
       'Organization',
@@ -102,12 +102,14 @@ export class ProfilesService {
       'Created At',
     ];
 
+    // ✅ Replace profile.name with profile.first_name + profile.last_name
     const rows = profiles.map((profile) => [
-      profile.name,
-      profile.email,
-      profile.position,
+      profile.first_name ?? '',
+      profile.last_name ?? '',
+      profile.email ?? '',
+      profile.position ?? '',
       profile.organization ?? '',
-      profile.url,
+      profile.url ?? '',
       new Date(profile.created_at).toLocaleString(),
     ]);
 
@@ -131,7 +133,7 @@ export class ProfilesService {
     } catch (err: any) {
       if (err.code === 403 || err.code === 401) {
         throw new BadRequestException(
-          'Permission denied: Make sure the Google Sheet is shared with the permsissions required.',
+          'Permission denied: Make sure the Google Sheet is shared with the required permissions.',
         );
       }
       console.error('Google Sheets API error:', err.message);
@@ -158,7 +160,6 @@ export class ProfilesService {
     }
 
     const spreadsheetId = match[1];
-    // Optional: sheetId = match[2];
     return { spreadsheetId };
   }
 

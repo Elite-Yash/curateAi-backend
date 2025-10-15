@@ -18,7 +18,7 @@ import { ExportToGoogleSheetDto } from './dto/export-to-google-sheet.dto';
 
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private readonly profilesService: ProfilesService) {}
+  constructor(private readonly profilesService: ProfilesService) { }
 
   @Post()
   @UsePipes(new ValidationPipe())
@@ -32,18 +32,28 @@ export class ProfilesController {
 
   @Get()
   findAll(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('workspace_id') workspace_id: string,
+    @Query('group_id') group_id: string,
     @Req() req: Request,
   ) {
     const currentUser = req['user'];
 
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) > 0 ? Number(limit) : 10;
+    const workspaceIdNum = Number(workspace_id) || undefined;
+    const groupIdNum = Number(group_id) || undefined;
+
     return this.profilesService.findAll(
       currentUser.id,
-      Number(page),
-      Number(limit),
+      pageNum,
+      limitNum,
+      workspaceIdNum,
+      groupIdNum
     );
   }
+
 
   @Post('/export-to-google-sheet')
   async exporToGoogleSheet(

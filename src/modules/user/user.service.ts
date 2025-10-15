@@ -10,6 +10,8 @@ import { StripeService } from 'src/stripe/stripe.service';
 import { SUBSCRIPTION_DETAILS_FETCHED_SUCCESSFULLY } from 'src/constants/stripeMessages';
 import { sendVerificationEmail } from 'src/helpers/mailhelper';
 import { emitWarning } from 'process';
+import { WorkspacesService } from '../workspaces/workspaces.service';
+import { WorkspaceGroupsService } from '../workspace-groups/workspace-groups.service';
 
 @Injectable()
 export class UserService {
@@ -17,7 +19,9 @@ export class UserService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
-        private stripeService: StripeService
+        private stripeService: StripeService,
+        private workspacesService: WorkspacesService,
+        private workspaceGroupsService: WorkspaceGroupsService,
     ) { }
 
     async findByEmail(email: string): Promise<User> {
@@ -35,25 +39,36 @@ export class UserService {
             if (existingUser) {
                 return sendErrorResponse(USER_ALREADY_EXISTS, existingUser);
             }
-            await this.verifyEmail(registerDto);
 
-            return sendSuccessResponse(USER_REGISTRATION_SUCCESS, {});
+            // 1. Verify Email and create user
+            const newUser = await this.verifyEmail(registerDto); 
+
+            // 2. Create default workspace for this user
+            const workspace = await this.workspacesService.create(
+                { name: 'My Workspace' },
+                newUser.id
+            );
+
+            // 3. Create default group under that workspace
+            await this.workspaceGroupsService.create({
+                name: 'My Group',
+                workspaceId: workspace.data.id,
+            });
+
+            return sendSuccessResponse(USER_REGISTRATION_SUCCESS, newUser);
 
         } catch (error) {
             console.error('Error during user registration:', error);
-
             return sendErrorResponse('Something went wrong', {});
-
         }
     }
 
-    async verifyEmail(registerDto: any): Promise<any> {
-        const { name, email, password, confirmPassword } = registerDto;
+
+    async verifyEmail(registerDto: any): Promise<User> {
+        const { name, email, password } = registerDto;
         const resetToken = generateVerificationToken();
 
-        // Register user a stripe customer
         const customerDetails = await this.stripeService.createCustomer(email, name);
-        // Create a new user
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = this.userRepository.create({
@@ -66,11 +81,13 @@ export class UserService {
             is_email_verified: true
         });
 
-        await this.userRepository.save(newUser);
+        const savedUser = await this.userRepository.save(newUser);
 
-        await sendVerificationEmail(email, resetToken)
-        return true;
+        await sendVerificationEmail(email, resetToken);
+
+        return savedUser; // return the user
     }
+
 
     async findById(id: number): Promise<User> {
         return this.userRepository.findOne({ where: { id } });
