@@ -16,7 +16,7 @@ export class ProfilesService {
   constructor(
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
-  ) {}
+  ) { }
 
   async create(user_id: number, data: CreateProfileDto): Promise<any> {
     let res = {
@@ -45,6 +45,8 @@ export class ProfilesService {
     user_id: number,
     page: number = 1,
     limit: number = 10,
+    workspace_id: number,
+    group_id: number
   ): Promise<any> {
     const skip = (page - 1) * limit;
 
@@ -53,7 +55,9 @@ export class ProfilesService {
       skip: skip,
       where: {
         deleted_at: IsNull(),
-        user_id: user_id,
+        user_id,
+        ...(workspace_id ? { workspace_id } : {}),
+        ...(group_id ? { group_id } : {}),
       },
       order: { created_at: 'DESC' },
     });
