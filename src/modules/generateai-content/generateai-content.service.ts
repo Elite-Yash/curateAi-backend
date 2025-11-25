@@ -170,11 +170,12 @@ export class GenerateaiContentService {
 
                 case 'message-reply': {
                     let lastMessagesString = "";
-                    for (let i = lastMessages.length - 1; i >= 0; i--) {
-                        lastMessagesString += `(${lastMessages[i].messageSpeaker === "self" ? currentUserName : authorName}): ${lastMessages[i].messageText}`;
-                        if (i != lastMessages.length - 1) lastMessagesString += "\n\n";
+                    if (Array.isArray(lastMessages) && lastMessages.length > 0) {
+                        for (let i = lastMessages.length - 1; i >= 0; i--) {
+                            lastMessagesString += `(${lastMessages[i].messageSpeaker === "self" ? currentUserName : authorName}): ${lastMessages[i].messageText}`;
+                            if (i != lastMessages.length - 1) lastMessagesString += "\n\n";
+                        }
                     }
-
                     promptTemplate = await ChatPromptTemplate.fromMessages([
                         ["system", MESSAGE_REPLY_PROMPT],
                         ["user", `Please provide a message reply:`],
